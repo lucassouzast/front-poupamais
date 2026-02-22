@@ -1,0 +1,39 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+};
+
+type AuthState = {
+  token: string | null;
+  user: User | null;
+  isAuthenticated: boolean;
+  setAuth: (token: string, user: User) => void;
+  clearAuth: () => void;
+};
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      token: null,
+      user: null,
+      isAuthenticated: false,
+
+      setAuth: (token, user) => {
+        localStorage.setItem("poupamais_token", token);
+        set({ token, user, isAuthenticated: true });
+      },
+
+      clearAuth: () => {
+        localStorage.removeItem("poupamais_token");
+        set({ token: null, user: null, isAuthenticated: false });
+      },
+    }),
+    {
+      name: "poupamais_auth",
+    }
+  )
+);
