@@ -4,7 +4,7 @@ export type Entry = {
   value: number;
   date: string;
   details: string;
-  category: string;
+  category: string | { _id: string; title?: string };
   user?: string;
   createdAt?: string;
   updatedAt?: string;

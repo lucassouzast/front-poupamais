@@ -1,4 +1,12 @@
-import { Alert, Button, List, ListItem, ListItemText, Paper, Stack } from "@mui/material";
+import {
+  Alert,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Stack,
+} from "@mui/material";
 import type { Entry } from "../../types/entry";
 import type { Category } from "../../types/category";
 
@@ -23,10 +31,17 @@ export default function EntryList({
 }: Props) {
   if (isLoading) return null;
   if (errorMessage) return <Alert severity="error">{errorMessage}</Alert>;
-  if (entries.length === 0) return <Alert severity="info">Nenhum lancamento cadastrado.</Alert>;
+  if (entries.length === 0)
+    return <Alert severity="info">Nenhum lancamento cadastrado.</Alert>;
+  
+  function getCategoryTitle(
+    categoryRef: string | { _id: string; title?: string },
+  ) {
+    if (typeof categoryRef !== "string") {
+      return categoryRef.title ?? "Categoria";
+    }
 
-  function getCategoryTitle(categoryId: string) {
-    const found = categories.find((item) => item._id === categoryId);
+    const found = categories.find((item) => item._id === categoryRef);
     return found?.title ?? "Categoria";
   }
 

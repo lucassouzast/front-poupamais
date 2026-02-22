@@ -1,4 +1,10 @@
-import { CircularProgress, TextField, Typography } from "@mui/material";
+import {
+  CircularProgress,
+  TextField,
+  Typography,
+  Grid,
+  MenuItem,
+} from "@mui/material";
 import AppLayout from "../components/layout/AppLayout";
 import CategoryEditDialog from "../components/categories/CategoryEditDialog";
 import CategoryForm from "../components/categories/CategoryForm";
@@ -38,7 +44,6 @@ export default function DashboardPage() {
   } = useCategories();
 
   const {
-    entries,
     isLoading: isEntriesLoading,
     errorMessage: entriesErrorMessage,
     categories: entryCategories,
@@ -68,6 +73,13 @@ export default function DashboardPage() {
 
     deletingId: deletingEntryId,
     handleDelete: handleDeleteEntry,
+
+    categoryFilter,
+    setCategoryFilter,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
   } = useEntries();
 
   return (
@@ -111,8 +123,6 @@ export default function DashboardPage() {
         onSave={saveEdit}
       />
 
-      {editMessage ? null : null}
-
       <Typography variant="h6" mt={4} mb={1}>
         Lancamentos
       </Typography>
@@ -135,13 +145,53 @@ export default function DashboardPage() {
       />
 
       <TextField
-  label="Buscar lancamento (titulo/detalhes)"
-  fullWidth
-  margin="normal"
-  value={entrySearch}
-  onChange={(event) => setEntrySearch(event.target.value)}
-/>
+        label="Buscar lancamento (titulo/detalhes)"
+        fullWidth
+        margin="normal"
+        value={entrySearch}
+        onChange={(event) => setEntrySearch(event.target.value)}
+      />
 
+      <Grid container spacing={2} sx={{ mb: 1 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <TextField
+            select
+            label="Categoria"
+            fullWidth
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+          >
+            <MenuItem value="">Todas</MenuItem>
+            {entryCategories.map((item) => (
+              <MenuItem key={item._id} value={item._id}>
+                {item.title}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 4 }}>
+          <TextField
+            label="Data inicial"
+            type="date"
+            fullWidth
+            value={startDate}
+            onChange={(event) => setStartDate(event.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 4 }}>
+          <TextField
+            label="Data final"
+            type="date"
+            fullWidth
+            value={endDate}
+            onChange={(event) => setEndDate(event.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+        </Grid>
+      </Grid>
 
       {isEntriesLoading ? <CircularProgress /> : null}
       <EntryList

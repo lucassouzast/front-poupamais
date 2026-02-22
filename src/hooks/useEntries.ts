@@ -21,6 +21,10 @@ export function useEntries() {
   const [details, setDetails] = useState("");
   const [category, setCategory] = useState("");
 
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [isCreating, setIsCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
@@ -30,7 +34,6 @@ export function useEntries() {
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-
 
   useEffect(() => {
     fetchEntries();
@@ -127,16 +130,58 @@ export function useEntries() {
     }
   }
 
+  function normalizeId(value: unknown): string {
+    if (typeof value === "string") return value.trim();
+    if (typeof value === "number") return String(value);
+    if (!value || typeof value !== "object") return "";
+
+    const obj = value as {
+      _id?: unknown;
+      id?: unknown;
+      $oid?: unknown;
+      toHexString?: () => string;
+      toString?: () => string;
+    };
+
+    if (typeof obj.$oid === "string") return obj.$oid.trim();
+
+    if (typeof obj.toHexString === "function") {
+      return obj.toHexString().trim();
+    }
+
+    if (obj._id !== undefined) return normalizeId(obj._id);
+    if (obj.id !== undefined) return normalizeId(obj.id);
+
+    if (
+      typeof obj.toString === "function" &&
+      obj.toString !== Object.prototype.toString
+    ) {
+      const converted = obj.toString().trim();
+      return converted === "[object Object]" ? "" : converted;
+    }
+
+    return "";
+  }
+
   const filteredEntries = entries.filter((entry) => {
-  const term = search.trim().toLowerCase();
-  if (!term) return true;
+    const term = search.trim().toLowerCase();
 
-  return (
-    entry.title.toLowerCase().includes(term) ||
-    (entry.details ?? "").toLowerCase().includes(term)
-  );
-});
+    const matchesText =
+      !term ||
+      entry.title.toLowerCase().includes(term) ||
+      (entry.details ?? "").toLowerCase().includes(term);
 
+    const matchesCategory =
+      !categoryFilter ||
+      normalizeId(entry.category) === normalizeId(categoryFilter);
+
+    const entryDate = new Date(entry.date);
+    const startOk =
+      !startDate || entryDate >= new Date(`${startDate}T00:00:00`);
+    const endOk = !endDate || entryDate <= new Date(`${endDate}T23:59:59`);
+
+    return matchesText && matchesCategory && startOk && endOk;
+  });
 
   return {
     entries,
@@ -170,5 +215,12 @@ export function useEntries() {
 
     deletingId,
     handleDelete,
+
+    categoryFilter,
+    setCategoryFilter,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
   };
 }

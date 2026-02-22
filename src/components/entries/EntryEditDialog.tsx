@@ -52,7 +52,7 @@ export default function EntryEditDialog({
     setValue(String(entry.value));
     setDate(entry.date ? entry.date.slice(0, 10) : "");
     setDetails(entry.details ?? "");
-    setCategory(entry.category);
+    setCategory(typeof entry.category === "string" ? entry.category : entry.category._id);
     setLocalMessage("");
   }, [entry]);
 
