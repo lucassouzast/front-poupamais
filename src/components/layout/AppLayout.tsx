@@ -11,6 +11,7 @@ import {
 import { DarkMode, LightMode } from "@mui/icons-material";
 import { useThemeStore } from "../../stores/themeStore";
 import { useAuthStore } from "../../stores/authStore";
+import { Link as RouterLink } from "react-router-dom";
 
 type Props = {
   children: ReactNode;
@@ -31,6 +32,14 @@ export default function AppLayout({ children }: Props) {
           </Typography>
 
           <Typography sx={{ mr: 2 }}>{user?.name ?? "Usuário"}</Typography>
+
+          <Button color="inherit" component={RouterLink} to="/dashboard">
+            Dashboard
+          </Button>
+
+          <Button color="inherit" component={RouterLink} to="/profile">
+            Perfil
+          </Button>
 
           <IconButton color="inherit" onClick={toggleMode}>
             {mode === "light" ? <DarkMode /> : <LightMode />}

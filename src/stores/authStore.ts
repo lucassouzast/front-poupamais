@@ -12,8 +12,10 @@ type AuthState = {
   user: User | null;
   isAuthenticated: boolean;
   setAuth: (token: string, user: User) => void;
+  setUser: (user: User) => void;
   clearAuth: () => void;
 };
+
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -30,6 +32,9 @@ export const useAuthStore = create<AuthState>()(
       clearAuth: () => {
         localStorage.removeItem("poupamais_token");
         set({ token: null, user: null, isAuthenticated: false });
+      },
+      setUser: (user) => {
+        set({ user });
       },
     }),
     {
