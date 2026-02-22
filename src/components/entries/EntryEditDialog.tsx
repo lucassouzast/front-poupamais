@@ -91,7 +91,7 @@ export default function EntryEditDialog({
 
   return (
     <Dialog open={open} onClose={isSaving ? undefined : onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Editar lancamento</DialogTitle>
+      <DialogTitle>Editar lançamento</DialogTitle>
 
       <DialogContent>
         <TextField

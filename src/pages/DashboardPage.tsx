@@ -124,7 +124,7 @@ export default function DashboardPage() {
       />
 
       <Typography variant="h6" mt={4} mb={1}>
-        Lancamentos
+        Lançamento
       </Typography>
 
       <EntryForm
@@ -145,7 +145,7 @@ export default function DashboardPage() {
       />
 
       <TextField
-        label="Buscar lancamento (titulo/detalhes)"
+        label="Buscar lançamento (titulo/detalhes)"
         fullWidth
         margin="normal"
         value={entrySearch}

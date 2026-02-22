@@ -32,8 +32,8 @@ export default function EntryList({
   if (isLoading) return null;
   if (errorMessage) return <Alert severity="error">{errorMessage}</Alert>;
   if (entries.length === 0)
-    return <Alert severity="info">Nenhum lancamento cadastrado.</Alert>;
-  
+    return <Alert severity="info">Nenhum lançamento cadastrado.</Alert>;
+
   function getCategoryTitle(
     categoryRef: string | { _id: string; title?: string },
   ) {

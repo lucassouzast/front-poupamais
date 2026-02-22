@@ -37,7 +37,7 @@ export default function EntryForm({
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
       <Typography variant="h6" mb={2}>
-        Novo lancamento
+        Novo lançamento
       </Typography>
 
       <Box component="form" onSubmit={onSubmit}>
@@ -92,7 +92,7 @@ export default function EntryForm({
         </TextField>
 
         <Button type="submit" variant="contained" disabled={isCreating} sx={{ mt: 1 }}>
-          {isCreating ? "Salvando..." : "Criar lancamento"}
+          {isCreating ? "Salvando..." : "Criar lançamento"}
         </Button>
       </Box>
 

@@ -32,7 +32,7 @@ export const useEntriesStore = create<EntriesState>((set) => ({
       const data = await listEntriesService();
       set({ entries: data });
     } catch {
-      set({ errorMessage: "Nao foi possivel carregar lancamentos." });
+      set({ errorMessage: "Nao foi possivel carregar lançamento." });
     } finally {
       set({ isLoading: false });
     }
@@ -42,9 +42,9 @@ export const useEntriesStore = create<EntriesState>((set) => ({
     try {
       const created = await createEntryService(payload);
       set((state) => ({ entries: [created, ...state.entries] }));
-      return { ok: true, message: "Lancamento criado com sucesso." };
+      return { ok: true, message: "lançamento criado com sucesso." };
     } catch (error) {
-      return { ok: false, message: getApiErrorMessage(error, "Erro ao criar lancamento.") };
+      return { ok: false, message: getApiErrorMessage(error, "Erro ao criar lançamento.") };
     }
   },
 
@@ -54,9 +54,9 @@ export const useEntriesStore = create<EntriesState>((set) => ({
       set((state) => ({
         entries: state.entries.map((item) => (item._id === id ? updated : item)),
       }));
-      return { ok: true, message: "Lancamento atualizado com sucesso." };
+      return { ok: true, message: "lançamento atualizado com sucesso." };
     } catch (error) {
-      return { ok: false, message: getApiErrorMessage(error, "Erro ao atualizar lancamento.") };
+      return { ok: false, message: getApiErrorMessage(error, "Erro ao atualizar lançamento.") };
     }
   },
 
@@ -66,9 +66,9 @@ export const useEntriesStore = create<EntriesState>((set) => ({
       set((state) => ({
         entries: state.entries.filter((item) => item._id !== id),
       }));
-      return { ok: true, message: "Lancamento removido com sucesso." };
+      return { ok: true, message: "lançamento removido com sucesso." };
     } catch (error) {
-      return { ok: false, message: getApiErrorMessage(error, "Erro ao excluir lancamento.") };
+      return { ok: false, message: getApiErrorMessage(error, "Erro ao excluir lançamento.") };
     }
   },
 }));
