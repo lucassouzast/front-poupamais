@@ -1,4 +1,4 @@
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress, TextField, Typography } from "@mui/material";
 import AppLayout from "../components/layout/AppLayout";
 import CategoryEditDialog from "../components/categories/CategoryEditDialog";
 import CategoryForm from "../components/categories/CategoryForm";
@@ -9,7 +9,6 @@ import EntryEditDialog from "../components/entries/EntryEditDialog";
 import EntryForm from "../components/entries/EntryForm";
 import EntryList from "../components/entries/EntryList";
 import { useEntries } from "../hooks/useEntries";
-
 
 export default function DashboardPage() {
   const {
@@ -37,38 +36,39 @@ export default function DashboardPage() {
     deletingId,
     handleDelete,
   } = useCategories();
- 
-const {
-  entries,
-  isLoading: isEntriesLoading,
-  errorMessage: entriesErrorMessage,
-  categories: entryCategories,
-  title: entryTitle,
-  value: entryValue,
-  date: entryDate,
-  details: entryDetails,
-  category: entryCategory,
-  setTitle: setEntryTitle,
-  setValue: setEntryValue,
-  setDate: setEntryDate,
-  setDetails: setEntryDetails,
-  setCategory: setEntryCategory,
-  isCreating: isCreatingEntry,
-  createMessage: createEntryMessage,
-  handleCreateEntry,
 
-  editingEntry,
-  isSavingEdit: isSavingEntryEdit,
-  editMessage: entryEditMessage,
-  openEdit: openEntryEdit,
-  closeEdit: closeEntryEdit,
-  saveEdit: saveEntryEdit,
+  const {
+    entries,
+    isLoading: isEntriesLoading,
+    errorMessage: entriesErrorMessage,
+    categories: entryCategories,
+    title: entryTitle,
+    value: entryValue,
+    date: entryDate,
+    details: entryDetails,
+    category: entryCategory,
+    setTitle: setEntryTitle,
+    setValue: setEntryValue,
+    setDate: setEntryDate,
+    setDetails: setEntryDetails,
+    setCategory: setEntryCategory,
+    isCreating: isCreatingEntry,
+    createMessage: createEntryMessage,
+    handleCreateEntry,
+    search: entrySearch,
+    setSearch: setEntrySearch,
+    filteredEntries,
 
-  deletingId: deletingEntryId,
-  handleDelete: handleDeleteEntry,
-} = useEntries();
+    editingEntry,
+    isSavingEdit: isSavingEntryEdit,
+    editMessage: entryEditMessage,
+    openEdit: openEntryEdit,
+    closeEdit: closeEntryEdit,
+    saveEdit: saveEntryEdit,
 
-
+    deletingId: deletingEntryId,
+    handleDelete: handleDeleteEntry,
+  } = useEntries();
 
   return (
     <AppLayout>
@@ -113,7 +113,7 @@ const {
 
       {editMessage ? null : null}
 
-            <Typography variant="h6" mt={4} mb={1}>
+      <Typography variant="h6" mt={4} mb={1}>
         Lancamentos
       </Typography>
 
@@ -134,9 +134,18 @@ const {
         onSubmit={handleCreateEntry}
       />
 
+      <TextField
+  label="Buscar lancamento (titulo/detalhes)"
+  fullWidth
+  margin="normal"
+  value={entrySearch}
+  onChange={(event) => setEntrySearch(event.target.value)}
+/>
+
+
       {isEntriesLoading ? <CircularProgress /> : null}
       <EntryList
-        entries={entries}
+        entries={filteredEntries}
         categories={entryCategories}
         isLoading={isEntriesLoading}
         errorMessage={entriesErrorMessage}
@@ -144,20 +153,15 @@ const {
         onEdit={openEntryEdit}
         onDelete={handleDeleteEntry}
       />
-            <EntryEditDialog
-  open={Boolean(editingEntry)}
-  entry={editingEntry}
-  categories={entryCategories}
-  isSaving={isSavingEntryEdit}
-  message={entryEditMessage}
-  onClose={closeEntryEdit}
-  onSave={saveEntryEdit}
-/>
-
-
-
-
-
+      <EntryEditDialog
+        open={Boolean(editingEntry)}
+        entry={editingEntry}
+        categories={entryCategories}
+        isSaving={isSavingEntryEdit}
+        message={entryEditMessage}
+        onClose={closeEntryEdit}
+        onSave={saveEntryEdit}
+      />
     </AppLayout>
   );
 }

@@ -29,6 +29,8 @@ export function useEntries() {
   const [editMessage, setEditMessage] = useState("");
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
 
   useEffect(() => {
     fetchEntries();
@@ -125,17 +127,30 @@ export function useEntries() {
     }
   }
 
+  const filteredEntries = entries.filter((entry) => {
+  const term = search.trim().toLowerCase();
+  if (!term) return true;
+
+  return (
+    entry.title.toLowerCase().includes(term) ||
+    (entry.details ?? "").toLowerCase().includes(term)
+  );
+});
+
+
   return {
     entries,
     isLoading,
     errorMessage,
     categories,
-
+    search,
+    filteredEntries,
     title,
     value,
     date,
     details,
     category,
+    setSearch,
     setTitle,
     setValue,
     setDate,
