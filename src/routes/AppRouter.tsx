@@ -5,6 +5,8 @@ import RegisterPage from "../pages/RegisterPage";
 import DashboardPage from "../pages/DashboardPage";
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuthBootstrap } from "../hooks/useAuthBootstrap";
+import ProfilePage from "../pages/ProfilePage";
+
 
 export default function AppRouter() {
   const { isReady } = useAuthBootstrap();
@@ -34,6 +36,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
