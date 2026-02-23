@@ -9,141 +9,44 @@ import AppLayout from "../components/layout/AppLayout";
 import CategoryEditDialog from "../components/categories/CategoryEditDialog";
 import CategoryForm from "../components/categories/CategoryForm";
 import CategoryList from "../components/categories/CategoryList";
-import { useCategories } from "../hooks/useCategories";
 import EntryEditDialog from "../components/entries/EntryEditDialog";
-
 import EntryForm from "../components/entries/EntryForm";
 import EntryList from "../components/entries/EntryList";
-import { useEntries } from "../hooks/useEntries";
+import { CategoriesProvider } from "../contexts/CategoriesContext";
+import { EntriesProvider, useEntriesContext } from "../contexts/EntriesContext";
+import { useCategoriesContext } from "../contexts/CategoriesContext";
 
-export default function DashboardPage() {
+function CategoriesSection() {
+  const { isLoading } = useCategoriesContext();
+
+  return (
+    <>
+      <CategoryForm />
+      <Typography variant="h6" mb={1}>
+        Categorias
+      </Typography>
+      {isLoading ? <CircularProgress /> : null}
+      <CategoryList />
+      <CategoryEditDialog />
+    </>
+  );
+}
+
+function EntriesFilters() {
   const {
-    categories,
-    isLoading,
-    errorMessage,
-
-    title,
-    color,
-    expense,
-    isCreating,
-    createMessage,
-    setTitle,
-    setColor,
-    setExpense,
-    handleCreateCategory,
-
-    editingCategory,
-    isSavingEdit,
-    editMessage,
-    openEdit,
-    closeEdit,
-    saveEdit,
-
-    deletingId,
-    handleDelete,
-  } = useCategories();
-
-  const {
-    isLoading: isEntriesLoading,
-    errorMessage: entriesErrorMessage,
     categories: entryCategories,
-    title: entryTitle,
-    value: entryValue,
-    date: entryDate,
-    details: entryDetails,
-    category: entryCategory,
-    setTitle: setEntryTitle,
-    setValue: setEntryValue,
-    setDate: setEntryDate,
-    setDetails: setEntryDetails,
-    setCategory: setEntryCategory,
-    isCreating: isCreatingEntry,
-    createMessage: createEntryMessage,
-    handleCreateEntry,
     search: entrySearch,
     setSearch: setEntrySearch,
-    filteredEntries,
-
-    editingEntry,
-    isSavingEdit: isSavingEntryEdit,
-    editMessage: entryEditMessage,
-    openEdit: openEntryEdit,
-    closeEdit: closeEntryEdit,
-    saveEdit: saveEntryEdit,
-
-    deletingId: deletingEntryId,
-    handleDelete: handleDeleteEntry,
-
     categoryFilter,
     setCategoryFilter,
     startDate,
     setStartDate,
     endDate,
     setEndDate,
-  } = useEntries();
+  } = useEntriesContext();
 
   return (
-    <AppLayout>
-      <Typography variant="h4" mb={2}>
-        Dashboard
-      </Typography>
-
-      <CategoryForm
-        title={title}
-        color={color}
-        expense={expense}
-        isCreating={isCreating}
-        createMessage={createMessage}
-        onChangeTitle={setTitle}
-        onChangeColor={setColor}
-        onChangeExpense={setExpense}
-        onSubmit={handleCreateCategory}
-      />
-
-      <Typography variant="h6" mb={1}>
-        Categorias
-      </Typography>
-
-      {isLoading ? <CircularProgress /> : null}
-
-      <CategoryList
-        categories={categories}
-        isLoading={isLoading}
-        errorMessage={errorMessage}
-        deletingId={deletingId}
-        onEdit={openEdit}
-        onDelete={handleDelete}
-      />
-
-      <CategoryEditDialog
-        open={Boolean(editingCategory)}
-        category={editingCategory}
-        isSaving={isSavingEdit}
-        onClose={closeEdit}
-        onSave={saveEdit}
-      />
-
-      <Typography variant="h6" mt={4} mb={1}>
-        Lançamento
-      </Typography>
-
-      <EntryForm
-        categories={entryCategories}
-        title={entryTitle}
-        value={entryValue}
-        date={entryDate}
-        details={entryDetails}
-        category={entryCategory}
-        isCreating={isCreatingEntry}
-        createMessage={createEntryMessage}
-        onChangeTitle={setEntryTitle}
-        onChangeValue={setEntryValue}
-        onChangeDate={setEntryDate}
-        onChangeDetails={setEntryDetails}
-        onChangeCategory={setEntryCategory}
-        onSubmit={handleCreateEntry}
-      />
-
+    <>
       <TextField
         label="Buscar lançamento (titulo/detalhes)"
         fullWidth
@@ -192,26 +95,42 @@ export default function DashboardPage() {
           />
         </Grid>
       </Grid>
+    </>
+  );
+}
 
+function EntriesSection() {
+  const { isLoading: isEntriesLoading } = useEntriesContext();
+
+  return (
+    <>
+      <EntryForm />
+      <EntriesFilters />
       {isEntriesLoading ? <CircularProgress /> : null}
-      <EntryList
-        entries={filteredEntries}
-        categories={entryCategories}
-        isLoading={isEntriesLoading}
-        errorMessage={entriesErrorMessage}
-        deletingId={deletingEntryId}
-        onEdit={openEntryEdit}
-        onDelete={handleDeleteEntry}
-      />
-      <EntryEditDialog
-        open={Boolean(editingEntry)}
-        entry={editingEntry}
-        categories={entryCategories}
-        isSaving={isSavingEntryEdit}
-        message={entryEditMessage}
-        onClose={closeEntryEdit}
-        onSave={saveEntryEdit}
-      />
+      <EntryList />
+      <EntryEditDialog />
+    </>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <AppLayout>
+      <Typography variant="h4" mb={2}>
+        Dashboard
+      </Typography>
+
+      <CategoriesProvider>
+        <EntriesProvider>
+          <CategoriesSection />
+
+          <Typography variant="h6" mt={4} mb={1}>
+            Lançamento
+          </Typography>
+
+          <EntriesSection />
+        </EntriesProvider>
+      </CategoriesProvider>
     </AppLayout>
   );
 }
