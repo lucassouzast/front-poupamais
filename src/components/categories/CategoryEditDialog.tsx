@@ -8,10 +8,15 @@ import {
   DialogTitle,
   MenuItem,
   TextField,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useCategoriesStore } from "../../stores/categoriesStore";
 
 export default function CategoryEditDialog() {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   const editingCategory = useCategoriesStore((state) => state.editingCategory);
   const isSavingEdit = useCategoriesStore((state) => state.isSavingEdit);
   const editMessage = useCategoriesStore((state) => state.editMessage);
@@ -52,12 +57,13 @@ export default function CategoryEditDialog() {
       onClose={isSavingEdit ? undefined : closeEdit}
       fullWidth
       maxWidth="sm"
+      fullScreen={fullScreen}
     >
       <DialogTitle>Editar categoria</DialogTitle>
 
       <DialogContent>
         <TextField
-          label="Título"
+          label="Titulo"
           fullWidth
           margin="normal"
           value={title}
@@ -89,11 +95,11 @@ export default function CategoryEditDialog() {
         {editMessage ? <Alert severity="error" sx={{ mt: 1 }}>{editMessage}</Alert> : null}
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={closeEdit} disabled={isSavingEdit}>
+      <DialogActions sx={{ px: { xs: 2, sm: 3 }, pb: { xs: 2, sm: 2 } }}>
+        <Button onClick={closeEdit} disabled={isSavingEdit} fullWidth={fullScreen}>
           Cancelar
         </Button>
-        <Button onClick={handleSave} variant="contained" disabled={isSavingEdit}>
+        <Button onClick={handleSave} variant="contained" disabled={isSavingEdit} fullWidth={fullScreen}>
           {isSavingEdit ? "Salvando..." : "Salvar"}
         </Button>
       </DialogActions>
