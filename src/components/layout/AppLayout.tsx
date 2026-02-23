@@ -1,4 +1,4 @@
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   AppBar,
   Box,
@@ -6,7 +6,12 @@ import {
   Chip,
   Container,
   Divider,
+  Drawer,
   IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   Paper,
   Stack,
   Toolbar,
@@ -20,6 +25,7 @@ import {
   InsightsOutlined,
   LightMode,
   Logout,
+  MenuRounded,
   PieChartOutline,
   ReceiptLongOutlined,
 } from "@mui/icons-material";
@@ -27,7 +33,7 @@ import { useThemeStore } from "../../stores/themeStore";
 import { useAuthStore } from "../../stores/authStore";
 import { useCategoriesStore } from "../../stores/categoriesStore";
 import { useEntriesStore } from "../../stores/entriesStore";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 
 type Props = {
   children: ReactNode;
@@ -45,6 +51,7 @@ function normalizeId(value: unknown): string {
 }
 
 export default function AppLayout({ children }: Props) {
+  const location = useLocation();
   const mode = useThemeStore((state) => state.mode);
   const toggleMode = useThemeStore((state) => state.toggleMode);
   const clearAuth = useAuthStore((state) => state.clearAuth);
@@ -53,6 +60,7 @@ export default function AppLayout({ children }: Props) {
   const fetchCategories = useCategoriesStore((state) => state.fetchCategories);
   const entries = useEntriesStore((state) => state.entries);
   const fetchEntries = useEntriesStore((state) => state.fetchEntries);
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -80,6 +88,15 @@ export default function AppLayout({ children }: Props) {
 
     return income - expense;
   }, [entries, categories]);
+
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }),
+    [],
+  );
 
   const lastUpdatedLabel = useMemo(() => {
     const timestamps = [
@@ -112,10 +129,19 @@ export default function AppLayout({ children }: Props) {
           color: "#F1F5F9",
         }}
       >
-        <Toolbar sx={{ gap: 2, minHeight: 72 }}>
+        <Toolbar sx={{ gap: { xs: 1, md: 2 }, minHeight: { xs: 64, md: 72 }, px: { xs: 1, sm: 2 } }}>
+          <IconButton
+            color="inherit"
+            onClick={() => setIsNavOpen(true)}
+            aria-label="Abrir menu"
+            sx={{ display: { xs: "inline-flex", md: "none" } }}
+          >
+            <MenuRounded />
+          </IconButton>
+
           <Stack direction="row" alignItems="center" spacing={1.2} sx={{ flexGrow: 1 }}>
             <InsightsOutlined />
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: 18, md: 20 } }}>
               Poupa+
             </Typography>
 
@@ -171,9 +197,10 @@ export default function AppLayout({ children }: Props) {
                 color: "#fff",
                 bgcolor: "rgba(255,255,255,0.16)",
                 "& .MuiChip-icon": { color: "#fff" },
-                maxWidth: { xs: 120, md: "none" },
+                maxWidth: { xs: 110, md: "none" },
                 textDecoration: "none",
                 cursor: "pointer",
+                display: { xs: "none", sm: "inline-flex" },
               }}
             />
           </Tooltip>
@@ -188,6 +215,74 @@ export default function AppLayout({ children }: Props) {
         </Toolbar>
       </AppBar>
 
+      <Drawer
+        anchor="left"
+        open={isNavOpen}
+        onClose={() => setIsNavOpen(false)}
+        PaperProps={{ sx: { width: 280, maxWidth: "88vw" } }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Poupa+
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user?.email ?? "Navegacao"}
+          </Typography>
+        </Box>
+
+        <Divider />
+
+        <List sx={{ py: 1 }}>
+          <ListItemButton
+            component={RouterLink}
+            to="/dashboard"
+            selected={location.pathname === "/dashboard"}
+            onClick={() => setIsNavOpen(false)}
+          >
+            <ListItemIcon>
+              <PieChartOutline />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItemButton>
+
+          <ListItemButton
+            component={RouterLink}
+            to="/transacoes"
+            selected={location.pathname === "/transacoes"}
+            onClick={() => setIsNavOpen(false)}
+          >
+            <ListItemIcon>
+              <ReceiptLongOutlined />
+            </ListItemIcon>
+            <ListItemText primary="Transacoes" />
+          </ListItemButton>
+
+          <ListItemButton
+            component={RouterLink}
+            to="/categorias"
+            selected={location.pathname === "/categorias"}
+            onClick={() => setIsNavOpen(false)}
+          >
+            <ListItemIcon>
+              <CategoryOutlined />
+            </ListItemIcon>
+            <ListItemText primary="Categorias" />
+          </ListItemButton>
+
+          <ListItemButton
+            component={RouterLink}
+            to="/profile"
+            selected={location.pathname === "/profile"}
+            onClick={() => setIsNavOpen(false)}
+          >
+            <ListItemIcon>
+              <AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary="Perfil" />
+          </ListItemButton>
+        </List>
+      </Drawer>
+
       <Paper
         square
         elevation={0}
@@ -197,7 +292,7 @@ export default function AppLayout({ children }: Props) {
           bgcolor: "background.default",
         }}
       >
-        <Container maxWidth="xl" sx={{ py: 0.9 }}>
+        <Container maxWidth="xl" sx={{ py: 0.9, px: { xs: 1.5, sm: 3 } }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={1}
@@ -208,15 +303,15 @@ export default function AppLayout({ children }: Props) {
               Ultima atualização: {lastUpdatedLabel}
             </Typography>
             <Chip
-              label={`Saldo Total: R$ ${totalBalance.toFixed(2)}`}
+              label={`Saldo Total: ${currencyFormatter.format(totalBalance)}`}
               color={totalBalance >= 0 ? "success" : "error"}
-              sx={{ fontWeight: 600 }}
+              sx={{ fontWeight: 600, maxWidth: "100%" }}
             />
           </Stack>
         </Container>
       </Paper>
 
-      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3.5 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3.5 }, px: { xs: 1.5, sm: 3 } }}>
         {children}
       </Container>
     </Box>

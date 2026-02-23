@@ -9,6 +9,8 @@ import {
   Stack,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import AppLayout from "../components/layout/AppLayout";
 import {
@@ -21,6 +23,8 @@ import { useAuthStore } from "../stores/authStore";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 export default function ProfilePage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const setUser = useAuthStore((state) => state.setUser);
 
   const [name, setName] = useState("");
@@ -170,7 +174,7 @@ export default function ProfilePage() {
 
   return (
     <AppLayout>
-      <Typography variant="h4" mb={2}>
+      <Typography variant="h4" mb={2} sx={{ fontSize: { xs: "1.8rem", sm: "2.125rem" } }}>
         Perfil
       </Typography>
 
@@ -201,8 +205,9 @@ export default function ProfilePage() {
               <Button
                 type="submit"
                 variant="contained"
-                sx={{ mt: 1.2 }}
+                sx={{ mt: 1.2, width: { xs: "100%", sm: "auto" } }}
                 disabled={isLoading || isSavingProfile}
+                fullWidth={isMobile}
               >
                 {isSavingProfile ? "Salvando..." : "Salvar nome"}
               </Button>
@@ -247,7 +252,13 @@ export default function ProfilePage() {
                 />
               </Stack>
 
-              <Button type="submit" variant="outlined" sx={{ mt: 1.2 }} disabled={isSavingEmail}>
+              <Button
+                type="submit"
+                variant="outlined"
+                sx={{ mt: 1.2, width: { xs: "100%", sm: "auto" } }}
+                disabled={isSavingEmail}
+                fullWidth={isMobile}
+              >
                 {isSavingEmail ? "Salvando..." : "Atualizar email"}
               </Button>
             </Box>
@@ -278,7 +289,13 @@ export default function ProfilePage() {
                 />
               </Stack>
 
-              <Button type="submit" variant="outlined" sx={{ mt: 1.2 }} disabled={isSavingPassword}>
+              <Button
+                type="submit"
+                variant="outlined"
+                sx={{ mt: 1.2, width: { xs: "100%", sm: "auto" } }}
+                disabled={isSavingPassword}
+                fullWidth={isMobile}
+              >
                 {isSavingPassword ? "Salvando..." : "Atualizar senha"}
               </Button>
             </Box>

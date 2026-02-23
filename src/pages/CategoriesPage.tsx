@@ -10,6 +10,8 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   AutorenewRounded,
@@ -59,6 +61,9 @@ function SummaryMetric({
 }
 
 export default function CategoriesPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const isLoading = useCategoriesStore((state) => state.isLoading);
   const fetchCategories = useCategoriesStore((state) => state.fetchCategories);
   const categories = useCategoriesStore((state) => state.categories);
@@ -86,11 +91,19 @@ export default function CategoriesPage() {
         sx={{ mb: 1.6 }}
       >
         <Stack spacing={0.2}>
-          <Typography variant="h4">Categorias</Typography>
+          <Typography variant="h4" sx={{ fontSize: { xs: "1.8rem", sm: "2.125rem" } }}>
+            Categorias
+          </Typography>
           <Typography color="text.secondary">Estruture receitas e despesas para um controle mais limpo.</Typography>
         </Stack>
 
-        <Button startIcon={<AutorenewRounded />} variant="outlined" onClick={handleRefresh}>
+        <Button
+          startIcon={<AutorenewRounded />}
+          variant="outlined"
+          onClick={handleRefresh}
+          fullWidth={isMobile}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
           Atualizar
         </Button>
       </Stack>
@@ -123,9 +136,9 @@ export default function CategoriesPage() {
               }}
             >
               <Stack spacing={0.8}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
                   <Typography variant="caption" color="text.secondary">
-                    Distribuição
+                    Distribuicao
                   </Typography>
                   <Chip size="small" label={`${Math.round(incomeRatio)}% / ${Math.round(expenseRatio)}%`} />
                 </Stack>
