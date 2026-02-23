@@ -9,25 +9,59 @@ import {
 import type { Category } from "../types/category";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
-type Result = { ok: boolean; message: string };
-
 type CategoriesState = {
   categories: Category[];
   isLoading: boolean;
   errorMessage: string;
+  deleteMessage: string;
+
+  title: string;
+  color: string;
+  expense: boolean;
+  isCreating: boolean;
+  createMessage: string;
+
+  editingCategory: Category | null;
+  isSavingEdit: boolean;
+  editMessage: string;
+
+  deletingId: string | null;
+
   fetchCategories: () => Promise<void>;
-  addCategory: (payload: CategoryPayload) => Promise<Result>;
-  editCategory: (id: string, payload: CategoryPayload) => Promise<Result>;
-  removeCategory: (id: string) => Promise<Result>;
+
+  setTitle: (value: string) => void;
+  setColor: (value: string) => void;
+  setExpense: (value: boolean) => void;
+  createCategory: () => Promise<void>;
+
+  openEdit: (category: Category) => void;
+  closeEdit: () => void;
+  saveEdit: (payload: CategoryPayload) => Promise<void>;
+
+  deleteCategory: (id: string) => Promise<void>;
+  resetState: () => void;
 };
 
-export const useCategoriesStore = create<CategoriesState>((set) => ({
+export const useCategoriesStore = create<CategoriesState>((set, get) => ({
   categories: [],
   isLoading: false,
   errorMessage: "",
+  deleteMessage: "",
+
+  title: "",
+  color: "#1976d2",
+  expense: true,
+  isCreating: false,
+  createMessage: "",
+
+  editingCategory: null,
+  isSavingEdit: false,
+  editMessage: "",
+
+  deletingId: null,
 
   fetchCategories: async () => {
-    set({ isLoading: true, errorMessage: "" });
+    set({ isLoading: true, errorMessage: "", deleteMessage: "" });
     try {
       const data = await listCategoriesService();
       set({ categories: data });
@@ -38,37 +72,104 @@ export const useCategoriesStore = create<CategoriesState>((set) => ({
     }
   },
 
-  addCategory: async (payload) => {
+  setTitle: (value) => set({ title: value }),
+  setColor: (value) => set({ color: value }),
+  setExpense: (value) => set({ expense: value }),
+
+  createCategory: async () => {
+    const { title, color, expense } = get();
+    set({ createMessage: "", deleteMessage: "" });
+
+    if (!title.trim()) {
+      set({ createMessage: "Informe o titulo da categoria." });
+      return;
+    }
+
+    set({ isCreating: true });
+
+    const payload: CategoryPayload = {
+      title: title.trim(),
+      color,
+      expense,
+    };
+
     try {
       const created = await createCategoryService(payload);
-      set((state) => ({ categories: [created, ...state.categories] }));
-      return { ok: true, message: "Categoria criada com sucesso." };
-    } catch (error) {
-      return { ok: false, message: getApiErrorMessage(error, "Erro ao criar categoria.") };
-    }
-  },
-
-  editCategory: async (id, payload) => {
-    try {
-      const updated = await updateCategoryService(id, payload);
       set((state) => ({
-        categories: state.categories.map((item) => (item._id === id ? updated : item)),
+        categories: [created, ...state.categories],
+        title: "",
+        color: "#1976d2",
+        expense: true,
+        createMessage: "Categoria criada com sucesso.",
       }));
-      return { ok: true, message: "Categoria atualizada com sucesso." };
     } catch (error) {
-      return { ok: false, message: getApiErrorMessage(error, "Erro ao atualizar categoria.") };
+      set({ createMessage: getApiErrorMessage(error, "Erro ao criar categoria.") });
+    } finally {
+      set({ isCreating: false });
     }
   },
 
-  removeCategory: async (id) => {
+  openEdit: (category) => {
+    set({ editingCategory: category, editMessage: "", deleteMessage: "" });
+  },
+
+  closeEdit: () => {
+    if (get().isSavingEdit) return;
+    set({ editingCategory: null, editMessage: "" });
+  },
+
+  saveEdit: async (payload) => {
+    const editingCategory = get().editingCategory;
+    if (!editingCategory) return;
+
+    set({ isSavingEdit: true });
+
+    try {
+      const updated = await updateCategoryService(editingCategory._id, payload);
+      set((state) => ({
+        categories: state.categories.map((item) =>
+          item._id === editingCategory._id ? updated : item,
+        ),
+        editingCategory: null,
+        editMessage: "",
+      }));
+    } catch (error) {
+      set({ editMessage: getApiErrorMessage(error, "Erro ao atualizar categoria.") });
+    } finally {
+      set({ isSavingEdit: false });
+    }
+  },
+
+  deleteCategory: async (id) => {
+    set({ deletingId: id, deleteMessage: "" });
     try {
       await deleteCategoryService(id);
       set((state) => ({
         categories: state.categories.filter((item) => item._id !== id),
+        deleteMessage: "",
       }));
-      return { ok: true, message: "Categoria removida com sucesso." };
     } catch (error) {
-      return { ok: false, message: getApiErrorMessage(error, "Erro ao excluir categoria.") };
+      set({ deleteMessage: getApiErrorMessage(error, "Erro ao excluir categoria.") });
+    } finally {
+      set({ deletingId: null });
     }
+  },
+
+  resetState: () => {
+    set({
+      categories: [],
+      isLoading: false,
+      errorMessage: "",
+      deleteMessage: "",
+      title: "",
+      color: "#1976d2",
+      expense: true,
+      isCreating: false,
+      createMessage: "",
+      editingCategory: null,
+      isSavingEdit: false,
+      editMessage: "",
+      deletingId: null,
+    });
   },
 }));

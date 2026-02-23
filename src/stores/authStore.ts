@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useCategoriesStore } from "./categoriesStore";
+import { useEntriesStore } from "./entriesStore";
 
 type User = {
   _id: string;
@@ -31,6 +33,8 @@ export const useAuthStore = create<AuthState>()(
 
       clearAuth: () => {
         localStorage.removeItem("poupamais_token");
+        useCategoriesStore.getState().resetState();
+        useEntriesStore.getState().resetState();
         set({ token: null, user: null, isAuthenticated: false });
       },
       setUser: (user) => {
