@@ -9,36 +9,18 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-import type { Entry } from "../../types/entry";
-import type { Category } from "../../types/category";
+import { useEntriesContext } from "../../contexts/EntriesContext";
 
-type SavePayload = {
-  title: string;
-  value: number;
-  date: string;
-  details: string;
-  category: string;
-};
+export default function EntryEditDialog() {
+  const {
+    editingEntry,
+    categories,
+    isSavingEdit,
+    editMessage,
+    closeEdit,
+    saveEdit,
+  } = useEntriesContext();
 
-type Props = {
-  open: boolean;
-  entry: Entry | null;
-  categories: Category[];
-  isSaving: boolean;
-  message: string;
-  onClose: () => void;
-  onSave: (payload: SavePayload) => Promise<void>;
-};
-
-export default function EntryEditDialog({
-  open,
-  entry,
-  categories,
-  isSaving,
-  message,
-  onClose,
-  onSave,
-}: Props) {
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");
   const [date, setDate] = useState("");
@@ -47,14 +29,14 @@ export default function EntryEditDialog({
   const [localMessage, setLocalMessage] = useState("");
 
   useEffect(() => {
-    if (!entry) return;
-    setTitle(entry.title);
-    setValue(String(entry.value));
-    setDate(entry.date ? entry.date.slice(0, 10) : "");
-    setDetails(entry.details ?? "");
-    setCategory(typeof entry.category === "string" ? entry.category : entry.category._id);
+    if (!editingEntry) return;
+    setTitle(editingEntry.title);
+    setValue(String(editingEntry.value));
+    setDate(editingEntry.date ? editingEntry.date.slice(0, 10) : "");
+    setDetails(editingEntry.details ?? "");
+    setCategory(typeof editingEntry.category === "string" ? editingEntry.category : editingEntry.category._id);
     setLocalMessage("");
-  }, [entry]);
+  }, [editingEntry]);
 
   async function handleSave() {
     setLocalMessage("");
@@ -80,7 +62,7 @@ export default function EntryEditDialog({
       return;
     }
 
-    await onSave({
+    await saveEdit({
       title: title.trim(),
       value: numericValue,
       date,
@@ -90,7 +72,12 @@ export default function EntryEditDialog({
   }
 
   return (
-    <Dialog open={open} onClose={isSaving ? undefined : onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={Boolean(editingEntry)}
+      onClose={isSavingEdit ? undefined : closeEdit}
+      fullWidth
+      maxWidth="sm"
+    >
       <DialogTitle>Editar lançamento</DialogTitle>
 
       <DialogContent>
@@ -145,15 +132,19 @@ export default function EntryEditDialog({
         </TextField>
 
         {localMessage ? <Alert severity="error">{localMessage}</Alert> : null}
-        {message ? <Alert severity="error" sx={{ mt: 1 }}>{message}</Alert> : null}
+        {editMessage ? (
+          <Alert severity="error" sx={{ mt: 1 }}>
+            {editMessage}
+          </Alert>
+        ) : null}
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={isSaving}>
+        <Button onClick={closeEdit} disabled={isSavingEdit}>
           Cancelar
         </Button>
-        <Button onClick={handleSave} variant="contained" disabled={isSaving}>
-          {isSaving ? "Salvando..." : "Salvar"}
+        <Button onClick={handleSave} variant="contained" disabled={isSavingEdit}>
+          {isSavingEdit ? "Salvando..." : "Salvar"}
         </Button>
       </DialogActions>
     </Dialog>

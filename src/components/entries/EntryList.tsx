@@ -7,36 +7,24 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import type { Entry } from "../../types/entry";
-import type { Category } from "../../types/category";
+import { useEntriesContext } from "../../contexts/EntriesContext";
 
-type Props = {
-  entries: Entry[];
-  categories: Category[];
-  isLoading: boolean;
-  errorMessage: string;
-  deletingId: string | null;
-  onEdit: (entry: Entry) => void;
-  onDelete: (id: string) => void;
-};
+export default function EntryList() {
+  const {
+    filteredEntries,
+    categories,
+    isLoading,
+    errorMessage,
+    deletingId,
+    openEdit,
+    handleDelete,
+  } = useEntriesContext();
 
-export default function EntryList({
-  entries,
-  categories,
-  isLoading,
-  errorMessage,
-  deletingId,
-  onEdit,
-  onDelete,
-}: Props) {
   if (isLoading) return null;
   if (errorMessage) return <Alert severity="error">{errorMessage}</Alert>;
-  if (entries.length === 0)
-    return <Alert severity="info">Nenhum lançamento cadastrado.</Alert>;
+  if (filteredEntries.length === 0) return <Alert severity="info">Nenhum lançamento cadastrado.</Alert>;
 
-  function getCategoryTitle(
-    categoryRef: string | { _id: string; title?: string },
-  ) {
+  function getCategoryTitle(categoryRef: string | { _id: string; title?: string }) {
     if (typeof categoryRef !== "string") {
       return categoryRef.title ?? "Categoria";
     }
@@ -48,7 +36,7 @@ export default function EntryList({
   return (
     <Paper variant="outlined">
       <List>
-        {entries.map((entry) => (
+        {filteredEntries.map((entry) => (
           <ListItem key={entry._id} divider>
             <ListItemText
               primary={`${entry.title} - R$ ${entry.value.toFixed(2)}`}
@@ -56,14 +44,14 @@ export default function EntryList({
             />
 
             <Stack direction="row" spacing={1}>
-              <Button variant="outlined" onClick={() => onEdit(entry)}>
+              <Button variant="outlined" onClick={() => openEdit(entry)}>
                 Editar
               </Button>
 
               <Button
                 variant="outlined"
                 color="error"
-                onClick={() => onDelete(entry._id)}
+                onClick={() => handleDelete(entry._id)}
                 disabled={deletingId === entry._id}
               >
                 {deletingId === entry._id ? "Excluindo..." : "Excluir"}
