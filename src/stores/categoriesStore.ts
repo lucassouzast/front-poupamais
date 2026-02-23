@@ -67,7 +67,7 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
       const data = await listCategoriesService();
       set({ categories: data });
     } catch {
-      set({ errorMessage: "Nao foi possivel carregar categorias." });
+      set({ errorMessage: "Não foi possivel carregar categorias." });
     } finally {
       set({ isLoading: false });
     }

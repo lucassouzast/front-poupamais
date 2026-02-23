@@ -40,7 +40,7 @@ export default function TransactionsPage() {
           <Typography variant="h4" sx={{ fontSize: { xs: "1.8rem", sm: "2.125rem" } }}>
             Transações
           </Typography>
-          <Typography color="text.secondary">Filtre e gerencie seus lancamentos.</Typography>
+          <Typography color="text.secondary">Filtre e gerencie seus lançamentos.</Typography>
         </Stack>
 
         <Button

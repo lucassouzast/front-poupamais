@@ -95,7 +95,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
       const data = await listEntriesService();
       set({ entries: data });
     } catch {
-      set({ errorMessage: "Nao foi possivel carregar lancamento." });
+      set({ errorMessage: "Nao foi possivel carregar lançamento." });
     } finally {
       set({ isLoading: false });
     }
@@ -156,10 +156,10 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
         value: "",
         date: getTodayISODate(),
         details: "",
-        createMessage: "Lancamento criado com sucesso.",
+        createMessage: "Lançamento criado com sucesso.",
       }));
     } catch (error) {
-      set({ createMessage: getApiErrorMessage(error, "Erro ao criar lancamento.") });
+      set({ createMessage: getApiErrorMessage(error, "Erro ao criar lançamento.") });
     } finally {
       set({ isCreating: false });
     }
@@ -190,7 +190,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
         editMessage: "",
       }));
     } catch (error) {
-      set({ editMessage: getApiErrorMessage(error, "Erro ao atualizar lancamento.") });
+      set({ editMessage: getApiErrorMessage(error, "Erro ao atualizar lançamento.") });
     } finally {
       set({ isSavingEdit: false });
     }
@@ -205,7 +205,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
         deleteMessage: "",
       }));
     } catch (error) {
-      set({ deleteMessage: getApiErrorMessage(error, "Erro ao excluir lancamento.") });
+      set({ deleteMessage: getApiErrorMessage(error, "Erro ao excluir lançamento.") });
     } finally {
       set({ deletingId: null });
     }

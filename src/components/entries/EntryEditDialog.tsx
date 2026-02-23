@@ -82,7 +82,7 @@ export default function EntryEditDialog() {
       fullWidth
       fullScreen={fullScreen}
     >
-      <DialogTitle>Editar lancamento</DialogTitle>
+      <DialogTitle>Editar lançamento</DialogTitle>
 
       <DialogContent>
         <TextField
