@@ -12,6 +12,8 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { DeleteOutline, EditOutlined } from "@mui/icons-material";
 import { useEntriesStore } from "../../stores/entriesStore";
@@ -62,6 +64,8 @@ function getCategoryByEntry(
 }
 
 export default function EntryList() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const categories = useCategoriesStore((state) => state.categories);
 
   const entries = useEntriesStore((state) => state.entries);
@@ -101,7 +105,7 @@ export default function EntryList() {
   if (filteredEntries.length === 0) {
     return (
       <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
-        <Alert severity="info">Nenhuma transação encontrada para os filtros atuais.</Alert>
+        <Alert severity="info">Nenhuma transacao encontrada para os filtros atuais.</Alert>
       </Paper>
     );
   }
@@ -110,37 +114,29 @@ export default function EntryList() {
     <>
       {deleteMessage ? <Alert severity="error" sx={{ mb: 1 }}>{deleteMessage}</Alert> : null}
 
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1 }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Data</TableCell>
-              <TableCell>Descrição</TableCell>
-              <TableCell>Categoria</TableCell>
-              <TableCell>Tipo</TableCell>
-              <TableCell align="right">Valor</TableCell>
-              <TableCell align="center">Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredEntries.map((entry) => {
-              const currentCategory = getCategoryByEntry(entry.category, categories);
-              const isExpense = currentCategory?.expense ?? false;
-              const amountColor = isExpense ? "error.main" : "success.main";
-              const signal = isExpense ? "-" : "+";
+      {isMobile ? (
+        <Stack spacing={1}>
+          {filteredEntries.map((entry) => {
+            const currentCategory = getCategoryByEntry(entry.category, categories);
+            const isExpense = currentCategory?.expense ?? false;
+            const amountColor = isExpense ? "error.main" : "success.main";
+            const signal = isExpense ? "-" : "+";
 
-              return (
-                <TableRow key={entry._id} hover>
-                  <TableCell>{new Date(entry.date).toLocaleDateString("pt-BR")}</TableCell>
-                  <TableCell>
-                    <Stack spacing={0.2}>
-                      <Typography fontWeight={600}>{entry.title}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {entry.details || "Sem detalhes"}
-                      </Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
+            return (
+              <Paper key={entry._id} variant="outlined" sx={{ p: 1.2, borderRadius: 1 }}>
+                <Stack spacing={0.8}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+                    <Typography fontWeight={700}>{entry.title}</Typography>
+                    <Typography sx={{ color: amountColor, fontWeight: 700 }}>
+                      {`${signal} R$ ${entry.value.toFixed(2)}`}
+                    </Typography>
+                  </Stack>
+
+                  <Typography variant="caption" color="text.secondary">
+                    {new Date(entry.date).toLocaleDateString("pt-BR")} - {entry.details || "Sem detalhes"}
+                  </Typography>
+
+                  <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
                     <Chip
                       label={currentCategory?.title ?? "Categoria"}
                       size="small"
@@ -150,43 +146,115 @@ export default function EntryList() {
                         fontWeight: 600,
                       }}
                     />
-                  </TableCell>
-                  <TableCell>
                     <Chip
                       label={isExpense ? "Despesa" : "Receita"}
                       size="small"
                       color={isExpense ? "error" : "success"}
                       variant="filled"
                     />
-                  </TableCell>
-                  <TableCell align="right" sx={{ color: amountColor, fontWeight: 700 }}>
-                    {`${signal} R$ ${entry.value.toFixed(2)}`}
-                  </TableCell>
-                  <TableCell align="center">
-                    <Stack direction="row" spacing={0.8} justifyContent="center">
-                      <Tooltip title="Editar">
-                        <IconButton color="primary" onClick={() => openEdit(entry)}>
-                          <EditOutlined fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                  </Stack>
 
-                      <Tooltip title="Excluir">
-                        <IconButton
-                          color="error"
-                          onClick={() => deleteEntry(entry._id)}
-                          disabled={deletingId === entry._id}
-                        >
-                          <DeleteOutline fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  <Stack direction="row" spacing={0.8} justifyContent="flex-end">
+                    <Tooltip title="Editar">
+                      <IconButton color="primary" onClick={() => openEdit(entry)}>
+                        <EditOutlined fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Excluir">
+                      <IconButton
+                        color="error"
+                        onClick={() => deleteEntry(entry._id)}
+                        disabled={deletingId === entry._id}
+                      >
+                        <DeleteOutline fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Stack>
+              </Paper>
+            );
+          })}
+        </Stack>
+      ) : (
+        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1, overflowX: "auto" }}>
+          <Table size="small" sx={{ minWidth: 860 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Data</TableCell>
+                <TableCell>Descricao</TableCell>
+                <TableCell>Categoria</TableCell>
+                <TableCell>Tipo</TableCell>
+                <TableCell align="right">Valor</TableCell>
+                <TableCell align="center">Acoes</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredEntries.map((entry) => {
+                const currentCategory = getCategoryByEntry(entry.category, categories);
+                const isExpense = currentCategory?.expense ?? false;
+                const amountColor = isExpense ? "error.main" : "success.main";
+                const signal = isExpense ? "-" : "+";
+
+                return (
+                  <TableRow key={entry._id} hover>
+                    <TableCell>{new Date(entry.date).toLocaleDateString("pt-BR")}</TableCell>
+                    <TableCell>
+                      <Stack spacing={0.2}>
+                        <Typography fontWeight={600}>{entry.title}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {entry.details || "Sem detalhes"}
+                        </Typography>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={currentCategory?.title ?? "Categoria"}
+                        size="small"
+                        sx={{
+                          bgcolor: currentCategory?.color ?? "#d8e4ff",
+                          color: "#fff",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={isExpense ? "Despesa" : "Receita"}
+                        size="small"
+                        color={isExpense ? "error" : "success"}
+                        variant="filled"
+                      />
+                    </TableCell>
+                    <TableCell align="right" sx={{ color: amountColor, fontWeight: 700 }}>
+                      {`${signal} R$ ${entry.value.toFixed(2)}`}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Stack direction="row" spacing={0.8} justifyContent="center">
+                        <Tooltip title="Editar">
+                          <IconButton color="primary" onClick={() => openEdit(entry)}>
+                            <EditOutlined fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Excluir">
+                          <IconButton
+                            color="error"
+                            onClick={() => deleteEntry(entry._id)}
+                            disabled={deletingId === entry._id}
+                          >
+                            <DeleteOutline fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </>
   );
 }

@@ -77,7 +77,7 @@ export default function EntryFilters() {
 
         <Grid size={{ xs: 6, md: 2.5 }}>
           <TextField
-            label="Até"
+            label="Ate"
             type="date"
             fullWidth
             value={endDate}
@@ -88,10 +88,10 @@ export default function EntryFilters() {
       </Grid>
 
       <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2} sx={{ mt: 1.5 }}>
-        <Button variant="contained" sx={{ minWidth: 160 }} onClick={() => fetchEntries()}>
+        <Button variant="contained" onClick={() => fetchEntries()} fullWidth sx={{ minWidth: { sm: 160 } }}>
           Filtrar
         </Button>
-        <Button variant="outlined" color="inherit" onClick={clearFilters} sx={{ minWidth: 160 }}>
+        <Button variant="outlined" color="inherit" onClick={clearFilters} fullWidth sx={{ minWidth: { sm: 160 } }}>
           Limpar
         </Button>
       </Stack>

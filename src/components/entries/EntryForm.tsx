@@ -69,12 +69,12 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
     }
   }
 
-  function handleCategoryChange(value: string) {
-    if (value === "__add_category__") {
+  function handleCategoryChange(newValue: string) {
+    if (newValue === "__add_category__") {
       setIsCategoryModalOpen(true);
       return;
     }
-    setCategory(value);
+    setCategory(newValue);
   }
 
   function handleCategoryCreated(categoryId: string) {
@@ -97,12 +97,12 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
         onSubmit={handleSubmit}
         sx={{
           paddingTop: 1,
-          maxWidth: 460,
+          maxWidth: embedded ? "100%" : 460,
         }}
       >
         <Grid size={{ xs: 12 }}>
           <TextField
-            label="Título"
+            label="Titulo"
             placeholder="Lanche, cinema com os amigos, salario, etc"
             fullWidth
             value={title}
@@ -110,7 +110,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
           />
         </Grid>
 
-        <Grid size={{ xs: 6 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             label="Valor"
             type="number"
@@ -120,7 +120,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
           />
         </Grid>
 
-        <Grid size={{ xs: 6 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             label="Data"
             type="date"
@@ -160,7 +160,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
 
         <Grid size={{ xs: 12 }}>
           <Stack direction="row" justifyContent="center" sx={{ mt: 1.5 }}>
-            <Button type="submit" variant="contained" disabled={isCreating} sx={{ minWidth: 170 }}>
+            <Button type="submit" variant="contained" disabled={isCreating} sx={{ minWidth: { sm: 170 } }} fullWidth>
               {isCreating ? "Salvando..." : "Nova transacao"}
             </Button>
           </Stack>

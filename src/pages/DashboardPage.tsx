@@ -11,6 +11,7 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import {
@@ -80,7 +81,7 @@ function StatCard({
     >
       <Box>
         <Typography sx={{ opacity: 0.92, fontSize: 13 }}>{title}</Typography>
-        <Typography variant="h5" sx={{ mt: 0.3 }}>
+        <Typography variant="h5" sx={{ mt: 0.3, fontSize: { xs: 24, sm: 26 } }}>
           {value}
         </Typography>
       </Box>
@@ -91,6 +92,7 @@ function StatCard({
 
 export default function DashboardPage() {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const categories = useCategoriesStore((state) => state.categories);
   const categoriesLoading = useCategoriesStore((state) => state.isLoading);
@@ -209,21 +211,27 @@ export default function DashboardPage() {
         sx={{ mb: 2 }}
       >
         <Stack spacing={0.6}>
-          <Typography variant="h4">Dashboard</Typography>
-          <Typography color="text.secondary">
-              Visão geral das suas finanças.
+          <Typography variant="h4" sx={{ fontSize: { xs: "1.8rem", sm: "2.125rem" } }}>
+            Dashboard
           </Typography>
+          <Typography color="text.secondary">Visao geral das suas financas.</Typography>
         </Stack>
 
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ width: { xs: "100%", sm: "auto" } }}>
           <Button
             startIcon={<AddRounded />}
             variant="contained"
             onClick={() => setIsEntryModalOpen(true)}
+            fullWidth={isMobile}
           >
-            Nova transação
+            Nova transacao
           </Button>
-          <Button startIcon={<AutorenewRounded />} variant="outlined" onClick={handleRefresh}>
+          <Button
+            startIcon={<AutorenewRounded />}
+            variant="outlined"
+            onClick={handleRefresh}
+            fullWidth={isMobile}
+          >
             Atualizar
           </Button>
         </Stack>
@@ -248,7 +256,7 @@ export default function DashboardPage() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <StatCard
-            title="Saldo do Mês"
+            title="Saldo do Mes"
             value={currencyFormatter.format(summary.total)}
             icon={<CalculateOutlined fontSize="large" />}
             background="linear-gradient(140deg, #0F766E 0%, #0EA5A3 100%)"
@@ -271,14 +279,14 @@ export default function DashboardPage() {
             sx={{
               p: 2,
               borderRadius: 2,
-              height: 420,
+              height: { xs: 340, sm: 380, md: 420 },
             }}
           >
             <Typography variant="h6" sx={{ mb: 1.5 }}>
               Fluxo de Caixa Mensal
             </Typography>
 
-            <Box sx={{ width: "100%", height: 340 }}>
+            <Box sx={{ width: "100%", height: { xs: 250, sm: 290, md: 340 } }}>
               <ResponsiveContainer>
                 <AreaChart data={monthlyData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <defs>
@@ -294,7 +302,11 @@ export default function DashboardPage() {
 
                   <CartesianGrid strokeDasharray="4 4" stroke={theme.palette.divider} />
                   <XAxis dataKey="monthLabel" tick={{ fill: theme.palette.text.secondary, fontSize: 12 }} />
-                  <YAxis tick={{ fill: theme.palette.text.secondary, fontSize: 12 }} />
+                  <YAxis
+                    hide={isMobile}
+                    tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+                    width={isMobile ? 0 : 38}
+                  />
                   <Tooltip
                     formatter={(value: number | string | undefined) =>
                       currencyFormatter.format(typeof value === "number" ? value : Number(value ?? 0))
@@ -334,7 +346,7 @@ export default function DashboardPage() {
             sx={{
               p: 2,
               borderRadius: 2,
-              height: 420,
+              height: { xs: 360, sm: 420 },
               overflow: "auto",
             }}
           >
@@ -357,7 +369,7 @@ export default function DashboardPage() {
                     </Typography>
                   </Stack>
 
-                  <Stack direction="row" alignItems="center" spacing={0.8}>
+                  <Stack direction="row" alignItems="center" spacing={0.8} flexWrap="wrap" useFlexGap>
                     <Typography variant="caption" color="text.secondary">
                       {item.date}
                     </Typography>
@@ -394,7 +406,7 @@ export default function DashboardPage() {
           },
         }}
       >
-        <DialogTitle>Nova transação</DialogTitle>
+        <DialogTitle>Nova transacao</DialogTitle>
         <DialogContent>
           <EntryForm embedded onSuccess={() => setIsEntryModalOpen(false)} />
         </DialogContent>
