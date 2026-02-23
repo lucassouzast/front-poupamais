@@ -32,6 +32,7 @@ type CategoriesState = {
   setTitle: (value: string) => void;
   setColor: (value: string) => void;
   setExpense: (value: boolean) => void;
+  clearCreateMessage: () => void;
   createCategory: () => Promise<void>;
 
   openEdit: (category: Category) => void;
@@ -75,6 +76,7 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
   setTitle: (value) => set({ title: value }),
   setColor: (value) => set({ color: value }),
   setExpense: (value) => set({ expense: value }),
+  clearCreateMessage: () => set({ createMessage: "" }),
 
   createCategory: async () => {
     const { title, color, expense } = get();

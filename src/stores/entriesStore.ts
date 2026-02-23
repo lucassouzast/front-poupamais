@@ -9,6 +9,10 @@ import {
 import type { Entry } from "../types/entry";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
+function getTodayISODate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 type EntriesState = {
   entries: Entry[];
   isLoading: boolean;
@@ -47,6 +51,7 @@ type EntriesState = {
   setStartDate: (value: string) => void;
   setEndDate: (value: string) => void;
   setSearch: (value: string) => void;
+  clearCreateMessage: () => void;
 
   createEntry: () => Promise<void>;
 
@@ -66,7 +71,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
 
   title: "",
   value: "",
-  date: "",
+  date: getTodayISODate(),
   details: "",
   category: "",
 
@@ -106,6 +111,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
   setStartDate: (value) => set({ startDate: value }),
   setEndDate: (value) => set({ endDate: value }),
   setSearch: (value) => set({ search: value }),
+  clearCreateMessage: () => set({ createMessage: "" }),
 
   createEntry: async () => {
     const { title, value, date, details, category } = get();
@@ -148,7 +154,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
         entries: [created, ...state.entries],
         title: "",
         value: "",
-        date: "",
+        date: getTodayISODate(),
         details: "",
         createMessage: "Lancamento criado com sucesso.",
       }));
@@ -213,7 +219,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
       deleteMessage: "",
       title: "",
       value: "",
-      date: "",
+      date: getTodayISODate(),
       details: "",
       category: "",
       categoryFilter: "",
