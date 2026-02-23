@@ -1,23 +1,10 @@
 import { Alert, Button, List, ListItem, ListItemText, Paper, Stack } from "@mui/material";
-import type { Category } from "../../types/category";
+import { useCategoriesContext } from "../../contexts/CategoriesContext";
 
-type Props = {
-  categories: Category[];
-  isLoading: boolean;
-  errorMessage: string;
-  deletingId: string | null;
-  onEdit: (category: Category) => void;
-  onDelete: (id: string) => void;
-};
+export default function CategoryList() {
+  const { categories, isLoading, errorMessage, deletingId, openEdit, handleDelete } =
+    useCategoriesContext();
 
-export default function CategoryList({
-  categories,
-  isLoading,
-  errorMessage,
-  deletingId,
-  onEdit,
-  onDelete,
-}: Props) {
   if (isLoading) return null;
   if (errorMessage) return <Alert severity="error">{errorMessage}</Alert>;
   if (categories.length === 0) return <Alert severity="info">Nenhuma categoria cadastrada.</Alert>;
@@ -33,14 +20,14 @@ export default function CategoryList({
             />
 
             <Stack direction="row" spacing={1}>
-              <Button variant="outlined" onClick={() => onEdit(category)}>
+              <Button variant="outlined" onClick={() => openEdit(category)}>
                 Editar
               </Button>
 
               <Button
                 variant="outlined"
                 color="error"
-                onClick={() => onDelete(category._id)}
+                onClick={() => handleDelete(category._id)}
                 disabled={deletingId === category._id}
               >
                 {deletingId === category._id ? "Excluindo..." : "Excluir"}

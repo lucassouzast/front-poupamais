@@ -1,41 +1,32 @@
 import { Alert, Box, Button, MenuItem, Paper, TextField, Typography } from "@mui/material";
+import { useCategoriesContext } from "../../contexts/CategoriesContext";
 
-type Props = {
-  title: string;
-  color: string;
-  expense: boolean;
-  isCreating: boolean;
-  createMessage: string;
-  onChangeTitle: (value: string) => void;
-  onChangeColor: (value: string) => void;
-  onChangeExpense: (value: boolean) => void;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-};
+export default function CategoryForm() {
+  const {
+    title,
+    color,
+    expense,
+    isCreating,
+    createMessage,
+    setTitle,
+    setColor,
+    setExpense,
+    handleCreateCategory,
+  } = useCategoriesContext();
 
-export default function CategoryForm({
-  title,
-  color,
-  expense,
-  isCreating,
-  createMessage,
-  onChangeTitle,
-  onChangeColor,
-  onChangeExpense,
-  onSubmit,
-}: Props) {
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
       <Typography variant="h6" mb={2}>
         Nova categoria
       </Typography>
 
-      <Box component="form" onSubmit={onSubmit}>
+      <Box component="form" onSubmit={handleCreateCategory}>
         <TextField
           label="Titulo"
           fullWidth
           margin="normal"
           value={title}
-          onChange={(event) => onChangeTitle(event.target.value)}
+          onChange={(event) => setTitle(event.target.value)}
         />
 
         <TextField
@@ -44,7 +35,7 @@ export default function CategoryForm({
           fullWidth
           margin="normal"
           value={color}
-          onChange={(event) => onChangeColor(event.target.value)}
+          onChange={(event) => setColor(event.target.value)}
         />
 
         <TextField
@@ -53,7 +44,7 @@ export default function CategoryForm({
           fullWidth
           margin="normal"
           value={expense ? "expense" : "income"}
-          onChange={(event) => onChangeExpense(event.target.value === "expense")}
+          onChange={(event) => setExpense(event.target.value === "expense")}
         >
           <MenuItem value="expense">Despesa</MenuItem>
           <MenuItem value="income">Receita</MenuItem>

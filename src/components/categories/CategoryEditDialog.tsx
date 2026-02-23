@@ -9,35 +9,22 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-import type { Category } from "../../types/category";
+import { useCategoriesContext } from "../../contexts/CategoriesContext";
 
-type Props = {
-  open: boolean;
-  category: Category | null;
-  isSaving: boolean;
-  onClose: () => void;
-  onSave: (payload: { title: string; color: string; expense: boolean }) => Promise<void>;
-};
-
-export default function CategoryEditDialog({
-  open,
-  category,
-  isSaving,
-  onClose,
-  onSave,
-}: Props) {
+export default function CategoryEditDialog() {
+  const { editingCategory, isSavingEdit, closeEdit, saveEdit } = useCategoriesContext();
   const [title, setTitle] = useState("");
   const [color, setColor] = useState("#1976d2");
   const [expense, setExpense] = useState(true);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!category) return;
-    setTitle(category.title);
-    setColor(category.color);
-    setExpense(category.expense);
+    if (!editingCategory) return;
+    setTitle(editingCategory.title);
+    setColor(editingCategory.color);
+    setExpense(editingCategory.expense);
     setMessage("");
-  }, [category]);
+  }, [editingCategory]);
 
   async function handleSave() {
     setMessage("");
@@ -47,7 +34,7 @@ export default function CategoryEditDialog({
       return;
     }
 
-    await onSave({
+    await saveEdit({
       title: title.trim(),
       color,
       expense,
@@ -55,7 +42,12 @@ export default function CategoryEditDialog({
   }
 
   return (
-    <Dialog open={open} onClose={isSaving ? undefined : onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={Boolean(editingCategory)}
+      onClose={isSavingEdit ? undefined : closeEdit}
+      fullWidth
+      maxWidth="sm"
+    >
       <DialogTitle>Editar categoria</DialogTitle>
 
       <DialogContent>
@@ -92,11 +84,11 @@ export default function CategoryEditDialog({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={isSaving}>
+        <Button onClick={closeEdit} disabled={isSavingEdit}>
           Cancelar
         </Button>
-        <Button onClick={handleSave} variant="contained" disabled={isSaving}>
-          {isSaving ? "Salvando..." : "Salvar"}
+        <Button onClick={handleSave} variant="contained" disabled={isSavingEdit}>
+          {isSavingEdit ? "Salvando..." : "Salvar"}
         </Button>
       </DialogActions>
     </Dialog>
