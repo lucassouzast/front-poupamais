@@ -1,18 +1,21 @@
 import { Alert, Box, Button, MenuItem, Paper, TextField, Typography } from "@mui/material";
-import { useCategoriesContext } from "../../contexts/CategoriesContext";
+import { useCategoriesStore } from "../../stores/categoriesStore";
 
 export default function CategoryForm() {
-  const {
-    title,
-    color,
-    expense,
-    isCreating,
-    createMessage,
-    setTitle,
-    setColor,
-    setExpense,
-    handleCreateCategory,
-  } = useCategoriesContext();
+  const title = useCategoriesStore((state) => state.title);
+  const color = useCategoriesStore((state) => state.color);
+  const expense = useCategoriesStore((state) => state.expense);
+  const isCreating = useCategoriesStore((state) => state.isCreating);
+  const createMessage = useCategoriesStore((state) => state.createMessage);
+  const setTitle = useCategoriesStore((state) => state.setTitle);
+  const setColor = useCategoriesStore((state) => state.setColor);
+  const setExpense = useCategoriesStore((state) => state.setExpense);
+  const createCategory = useCategoriesStore((state) => state.createCategory);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await createCategory();
+  }
 
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
@@ -20,7 +23,7 @@ export default function CategoryForm() {
         Nova categoria
       </Typography>
 
-      <Box component="form" onSubmit={handleCreateCategory}>
+      <Box component="form" onSubmit={handleSubmit}>
         <TextField
           label="Titulo"
           fullWidth

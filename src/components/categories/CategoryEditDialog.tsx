@@ -9,10 +9,15 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-import { useCategoriesContext } from "../../contexts/CategoriesContext";
+import { useCategoriesStore } from "../../stores/categoriesStore";
 
 export default function CategoryEditDialog() {
-  const { editingCategory, isSavingEdit, closeEdit, saveEdit } = useCategoriesContext();
+  const editingCategory = useCategoriesStore((state) => state.editingCategory);
+  const isSavingEdit = useCategoriesStore((state) => state.isSavingEdit);
+  const editMessage = useCategoriesStore((state) => state.editMessage);
+  const closeEdit = useCategoriesStore((state) => state.closeEdit);
+  const saveEdit = useCategoriesStore((state) => state.saveEdit);
+
   const [title, setTitle] = useState("");
   const [color, setColor] = useState("#1976d2");
   const [expense, setExpense] = useState(true);
@@ -81,6 +86,7 @@ export default function CategoryEditDialog() {
         </TextField>
 
         {message ? <Alert severity="error">{message}</Alert> : null}
+        {editMessage ? <Alert severity="error" sx={{ mt: 1 }}>{editMessage}</Alert> : null}
       </DialogContent>
 
       <DialogActions>

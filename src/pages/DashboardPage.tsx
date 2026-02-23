@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { CircularProgress, Typography } from "@mui/material";
 import AppLayout from "../components/layout/AppLayout";
 import CategoryEditDialog from "../components/categories/CategoryEditDialog";
@@ -7,12 +8,11 @@ import EntryEditDialog from "../components/entries/EntryEditDialog";
 import EntryFilters from "../components/entries/EntryFilters";
 import EntryForm from "../components/entries/EntryForm";
 import EntryList from "../components/entries/EntryList";
-import { CategoriesProvider } from "../contexts/CategoriesContext";
-import { EntriesProvider, useEntriesContext } from "../contexts/EntriesContext";
-import { useCategoriesContext } from "../contexts/CategoriesContext";
+import { useCategoriesStore } from "../stores/categoriesStore";
+import { useEntriesStore } from "../stores/entriesStore";
 
 function CategoriesSection() {
-  const { isLoading } = useCategoriesContext();
+  const isLoading = useCategoriesStore((state) => state.isLoading);
 
   return (
     <>
@@ -28,7 +28,7 @@ function CategoriesSection() {
 }
 
 function EntriesSection() {
-  const { isLoading: isEntriesLoading } = useEntriesContext();
+  const isEntriesLoading = useEntriesStore((state) => state.isLoading);
 
   return (
     <>
@@ -42,23 +42,27 @@ function EntriesSection() {
 }
 
 export default function DashboardPage() {
+  const fetchCategories = useCategoriesStore((state) => state.fetchCategories);
+  const fetchEntries = useEntriesStore((state) => state.fetchEntries);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchEntries();
+  }, [fetchCategories, fetchEntries]);
+
   return (
     <AppLayout>
       <Typography variant="h4" mb={2}>
         Dashboard
       </Typography>
 
-      <CategoriesProvider>
-        <EntriesProvider>
-          <CategoriesSection />
+      <CategoriesSection />
 
-          <Typography variant="h6" mt={4} mb={1}>
-            Lançamento
-          </Typography>
+      <Typography variant="h6" mt={4} mb={1}>
+        Lançamento
+      </Typography>
 
-          <EntriesSection />
-        </EntriesProvider>
-      </CategoriesProvider>
+      <EntriesSection />
     </AppLayout>
   );
 }
