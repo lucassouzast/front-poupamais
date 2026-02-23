@@ -1,14 +1,22 @@
 import {
   Alert,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
+  Chip,
+  IconButton,
   Paper,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
 } from "@mui/material";
+import { DeleteOutline, EditOutlined } from "@mui/icons-material";
 import { useEntriesStore } from "../../stores/entriesStore";
 import { useCategoriesStore } from "../../stores/categoriesStore";
+import type { Category } from "../../types/category";
 
 function normalizeId(value: unknown): string {
   if (typeof value === "string") return value.trim();
@@ -38,6 +46,19 @@ function normalizeId(value: unknown): string {
   }
 
   return "";
+}
+
+function getCategoryByEntry(
+  categoryRef: string | { _id: string; title?: string },
+  categories: Category[],
+): Category | null {
+  if (typeof categoryRef !== "string") {
+    const categoryId = normalizeId(categoryRef._id);
+    return categories.find((item) => normalizeId(item._id) === categoryId) ?? null;
+  }
+
+  const categoryId = normalizeId(categoryRef);
+  return categories.find((item) => normalizeId(item._id) === categoryId) ?? null;
 }
 
 export default function EntryList() {
@@ -76,47 +97,96 @@ export default function EntryList() {
 
   if (isLoading) return null;
   if (errorMessage) return <Alert severity="error">{errorMessage}</Alert>;
-  if (filteredEntries.length === 0) return <Alert severity="info">Nenhum lançamento cadastrado.</Alert>;
 
-  function getCategoryTitle(categoryRef: string | { _id: string; title?: string }) {
-    if (typeof categoryRef !== "string") {
-      return categoryRef.title ?? "Categoria";
-    }
-
-    const found = categories.find((item) => item._id === categoryRef);
-    return found?.title ?? "Categoria";
+  if (filteredEntries.length === 0) {
+    return (
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
+        <Alert severity="info">Nenhuma transação encontrada para os filtros atuais.</Alert>
+      </Paper>
+    );
   }
 
   return (
     <>
       {deleteMessage ? <Alert severity="error" sx={{ mb: 1 }}>{deleteMessage}</Alert> : null}
-      <Paper variant="outlined">
-        <List>
-          {filteredEntries.map((entry) => (
-            <ListItem key={entry._id} divider>
-              <ListItemText
-                primary={`${entry.title} - R$ ${entry.value.toFixed(2)}`}
-                secondary={`${getCategoryTitle(entry.category)} | ${new Date(entry.date).toLocaleDateString("pt-BR")}`}
-              />
 
-              <Stack direction="row" spacing={1}>
-                <Button variant="outlined" onClick={() => openEdit(entry)}>
-                  Editar
-                </Button>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Data</TableCell>
+              <TableCell>Descrição</TableCell>
+              <TableCell>Categoria</TableCell>
+              <TableCell>Tipo</TableCell>
+              <TableCell align="right">Valor</TableCell>
+              <TableCell align="center">Ações</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredEntries.map((entry) => {
+              const currentCategory = getCategoryByEntry(entry.category, categories);
+              const isExpense = currentCategory?.expense ?? false;
+              const amountColor = isExpense ? "error.main" : "success.main";
+              const signal = isExpense ? "-" : "+";
 
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => deleteEntry(entry._id)}
-                  disabled={deletingId === entry._id}
-                >
-                  {deletingId === entry._id ? "Excluindo..." : "Excluir"}
-                </Button>
-              </Stack>
-            </ListItem>
-          ))}
-        </List>
-      </Paper>
+              return (
+                <TableRow key={entry._id} hover>
+                  <TableCell>{new Date(entry.date).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell>
+                    <Stack spacing={0.2}>
+                      <Typography fontWeight={600}>{entry.title}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {entry.details || "Sem detalhes"}
+                      </Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={currentCategory?.title ?? "Categoria"}
+                      size="small"
+                      sx={{
+                        bgcolor: currentCategory?.color ?? "#d8e4ff",
+                        color: "#fff",
+                        fontWeight: 600,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={isExpense ? "Despesa" : "Receita"}
+                      size="small"
+                      color={isExpense ? "error" : "success"}
+                      variant="filled"
+                    />
+                  </TableCell>
+                  <TableCell align="right" sx={{ color: amountColor, fontWeight: 700 }}>
+                    {`${signal} R$ ${entry.value.toFixed(2)}`}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Stack direction="row" spacing={0.8} justifyContent="center">
+                      <Tooltip title="Editar">
+                        <IconButton color="primary" onClick={() => openEdit(entry)}>
+                          <EditOutlined fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Tooltip title="Excluir">
+                        <IconButton
+                          color="error"
+                          onClick={() => deleteEntry(entry._id)}
+                          disabled={deletingId === entry._id}
+                        >
+                          <DeleteOutline fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </>
   );
 }
