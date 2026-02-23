@@ -105,7 +105,7 @@ export default function EntryList() {
   if (filteredEntries.length === 0) {
     return (
       <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
-        <Alert severity="info">Nenhuma transacao encontrada para os filtros atuais.</Alert>
+        <Alert severity="info">Nenhuma transação encontrada para os filtros atuais.</Alert>
       </Paper>
     );
   }

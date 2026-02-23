@@ -86,7 +86,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
     <>
       {!embedded ? (
         <Typography variant="h6" sx={{ mb: 1.5 }}>
-          Nova transacao
+          Nova transação
         </Typography>
       ) : null}
 
@@ -161,7 +161,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
         <Grid size={{ xs: 12 }}>
           <Stack direction="row" justifyContent="center" sx={{ mt: 1.5 }}>
             <Button type="submit" variant="contained" disabled={isCreating} sx={{ minWidth: { sm: 170 } }} fullWidth>
-              {isCreating ? "Salvando..." : "Nova transacao"}
+              {isCreating ? "Salvando..." : "Nova transação"}
             </Button>
           </Stack>
         </Grid>

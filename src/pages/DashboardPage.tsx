@@ -224,7 +224,7 @@ export default function DashboardPage() {
             onClick={() => setIsEntryModalOpen(true)}
             fullWidth={isMobile}
           >
-            Nova transacao
+            Nova transação
           </Button>
           <Button
             startIcon={<AutorenewRounded />}
@@ -388,7 +388,7 @@ export default function DashboardPage() {
 
               {recentTransactions.length === 0 ? (
                 <Typography color="text.secondary" sx={{ py: 1 }}>
-                  Nenhuma transacao recente.
+                  Nenhuma transação recente.
                 </Typography>
               ) : null}
             </Stack>
@@ -406,7 +406,7 @@ export default function DashboardPage() {
           },
         }}
       >
-        <DialogTitle>Nova transacao</DialogTitle>
+        <DialogTitle>Nova transação</DialogTitle>
         <DialogContent>
           <EntryForm embedded onSuccess={() => setIsEntryModalOpen(false)} />
         </DialogContent>
