@@ -1,14 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
-import LoginPage from "../pages/LoginPage";
-import RegisterPage from "../pages/RegisterPage";
+import AuthPage from "../pages/AuthPage";
 import DashboardPage from "../pages/DashboardPage";
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuthBootstrap } from "../hooks/useAuthBootstrap";
 import ProfilePage from "../pages/ProfilePage";
 import TransactionsPage from "../pages/TransactionsPage";
 import CategoriesPage from "../pages/CategoriesPage";
-
 
 export default function AppRouter() {
   const { isReady } = useAuthBootstrap();
@@ -31,8 +29,9 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/login" element={<Navigate to="/auth" replace />} />
+        <Route path="/register" element={<Navigate to="/auth" replace />} />
         <Route
           path="/dashboard"
           element={

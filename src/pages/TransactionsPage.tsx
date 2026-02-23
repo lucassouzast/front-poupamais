@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { AutorenewRounded } from "@mui/icons-material";
 import AppLayout from "../components/layout/AppLayout";
 import PageLoadingOverlay from "../components/layout/PageLoadingOverlay";
@@ -10,6 +10,9 @@ import { useCategoriesStore } from "../stores/categoriesStore";
 import { useEntriesStore } from "../stores/entriesStore";
 
 export default function TransactionsPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const categoriesLoading = useCategoriesStore((state) => state.isLoading);
   const fetchCategories = useCategoriesStore((state) => state.fetchCategories);
 
@@ -34,11 +37,19 @@ export default function TransactionsPage() {
         sx={{ mb: 2 }}
       >
         <Stack spacing={0.4}>
-          <Typography variant="h4">Transações</Typography>
-          <Typography color="text.secondary">Filtre e gerencie seus lançamentos.</Typography>
+          <Typography variant="h4" sx={{ fontSize: { xs: "1.8rem", sm: "2.125rem" } }}>
+            Transações
+          </Typography>
+          <Typography color="text.secondary">Filtre e gerencie seus lancamentos.</Typography>
         </Stack>
 
-        <Button startIcon={<AutorenewRounded />} variant="outlined" onClick={handleRefresh}>
+        <Button
+          startIcon={<AutorenewRounded />}
+          variant="outlined"
+          onClick={handleRefresh}
+          fullWidth={isMobile}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
           Atualizar
         </Button>
       </Stack>
