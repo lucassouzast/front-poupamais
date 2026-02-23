@@ -6,6 +6,8 @@ import DashboardPage from "../pages/DashboardPage";
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuthBootstrap } from "../hooks/useAuthBootstrap";
 import ProfilePage from "../pages/ProfilePage";
+import TransactionsPage from "../pages/TransactionsPage";
+import CategoriesPage from "../pages/CategoriesPage";
 
 
 export default function AppRouter() {
@@ -44,6 +46,22 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transacoes"
+          element={
+            <ProtectedRoute>
+              <TransactionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/categorias"
+          element={
+            <ProtectedRoute>
+              <CategoriesPage />
             </ProtectedRoute>
           }
         />

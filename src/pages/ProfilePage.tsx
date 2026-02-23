@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Box, Button, Paper, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import AppLayout from "../components/layout/AppLayout";
 import { getMeService, updateMeService } from "../services/usersApi";
 import { useAuthStore } from "../stores/authStore";
@@ -75,35 +75,35 @@ export default function ProfilePage() {
         Perfil
       </Typography>
 
-      <Paper variant="outlined" sx={{ p: 2, maxWidth: 520 }}>
+      <Paper variant="outlined" sx={{ p: 2, maxWidth: 560 }}>
         {isLoading ? <Alert severity="info">Carregando perfil...</Alert> : null}
         {errorMessage ? <Alert severity="error" sx={{ mb: 2 }}>{errorMessage}</Alert> : null}
         {successMessage ? <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert> : null}
 
         <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            label="Nome"
-            fullWidth
-            margin="normal"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            disabled={isLoading}
-          />
+          <Stack spacing={1.2}>
+            <TextField
+              label="Nome"
+              fullWidth
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              disabled={isLoading}
+            />
 
-          <TextField
-            label="Email"
-            type="email"
-            fullWidth
-            margin="normal"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            disabled={isLoading}
-          />
+            <TextField
+              label="Email"
+              type="email"
+              fullWidth
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              disabled={isLoading}
+            />
+          </Stack>
 
           <Button
             type="submit"
             variant="contained"
-            sx={{ mt: 1 }}
+            sx={{ mt: 1.5 }}
             disabled={isLoading || isSaving}
           >
             {isSaving ? "Salvando..." : "Salvar alteracoes"}
