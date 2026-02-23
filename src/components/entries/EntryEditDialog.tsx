@@ -75,13 +75,12 @@ export default function EntryEditDialog() {
       open={Boolean(editingEntry)}
       onClose={isSavingEdit ? undefined : closeEdit}
       fullWidth
-      maxWidth="sm"
     >
       <DialogTitle>Editar lançamento</DialogTitle>
 
       <DialogContent>
         <TextField
-          label="Titulo"
+          label="Título"
           fullWidth
           margin="normal"
           value={title}

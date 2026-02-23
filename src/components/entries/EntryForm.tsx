@@ -1,9 +1,28 @@
-import { useEffect } from "react";
-import { Alert, Box, Button, MenuItem, Paper, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  MenuItem,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useEntriesStore } from "../../stores/entriesStore";
 import { useCategoriesStore } from "../../stores/categoriesStore";
+import CategoryForm from "../categories/CategoryForm";
 
-export default function EntryForm() {
+type EntryFormProps = {
+  embedded?: boolean;
+  onSuccess?: () => void;
+};
+
+export default function EntryForm({ embedded = false, onSuccess }: EntryFormProps) {
   const categories = useCategoriesStore((state) => state.categories);
 
   const title = useEntriesStore((state) => state.title);
@@ -19,7 +38,10 @@ export default function EntryForm() {
   const setDate = useEntriesStore((state) => state.setDate);
   const setDetails = useEntriesStore((state) => state.setDetails);
   const setCategory = useEntriesStore((state) => state.setCategory);
+  const clearCreateMessage = useEntriesStore((state) => state.clearCreateMessage);
   const createEntry = useEntriesStore((state) => state.createEntry);
+
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   useEffect(() => {
     if (!category && categories.length > 0) {
@@ -27,78 +49,162 @@ export default function EntryForm() {
     }
   }, [categories, category, setCategory]);
 
+  useEffect(() => {
+    if (!createMessage.includes("sucesso")) return;
+
+    const timeoutId = window.setTimeout(() => {
+      clearCreateMessage();
+    }, 2000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [createMessage, clearCreateMessage]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     await createEntry();
+
+    const message = useEntriesStore.getState().createMessage;
+    if (message.includes("sucesso")) {
+      onSuccess?.();
+    }
   }
 
-  return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-      <Typography variant="h6" mb={2}>
-        Novo lançamento
-      </Typography>
+  function handleCategoryChange(value: string) {
+    if (value === "__add_category__") {
+      setIsCategoryModalOpen(true);
+      return;
+    }
+    setCategory(value);
+  }
 
-      <Box component="form" onSubmit={handleSubmit}>
-        <TextField
-          label="Titulo"
-          fullWidth
-          margin="normal"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
+  function handleCategoryCreated(categoryId: string) {
+    setCategory(categoryId);
+    setIsCategoryModalOpen(false);
+  }
 
-        <TextField
-          label="Valor"
-          type="number"
-          fullWidth
-          margin="normal"
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-        />
+  const content = (
+    <>
+      {!embedded ? (
+        <Typography variant="h6" sx={{ mb: 1.5 }}>
+          Nova transacao
+        </Typography>
+      ) : null}
 
-        <TextField
-          label="Data"
-          type="date"
-          fullWidth
-          margin="normal"
-          value={date}
-          onChange={(event) => setDate(event.target.value)}
-          slotProps={{ inputLabel: { shrink: true } }}
-        />
+      <Grid
+        container
+        component="form"
+        spacing={1.2}
+        onSubmit={handleSubmit}
+        sx={{
+          paddingTop: 1,
+          maxWidth: 460,
+        }}
+      >
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            label="Título"
+            placeholder="Lanche, cinema com os amigos, salario, etc"
+            fullWidth
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </Grid>
 
-        <TextField
-          label="Detalhes"
-          fullWidth
-          margin="normal"
-          value={details}
-          onChange={(event) => setDetails(event.target.value)}
-        />
+        <Grid size={{ xs: 6 }}>
+          <TextField
+            label="Valor"
+            type="number"
+            fullWidth
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+          />
+        </Grid>
 
-        <TextField
-          select
-          label="Categoria"
-          fullWidth
-          margin="normal"
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-        >
-          {categories.map((item) => (
-            <MenuItem key={item._id} value={item._id}>
-              {item.title}
-            </MenuItem>
-          ))}
-        </TextField>
+        <Grid size={{ xs: 6 }}>
+          <TextField
+            label="Data"
+            type="date"
+            fullWidth
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+        </Grid>
 
-        <Button type="submit" variant="contained" disabled={isCreating} sx={{ mt: 1 }}>
-          {isCreating ? "Salvando..." : "Criar lançamento"}
-        </Button>
-      </Box>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            label="Detalhes"
+            fullWidth
+            value={details}
+            onChange={(event) => setDetails(event.target.value)}
+            sx={{ "& .MuiInputBase-input": { minHeight: 54 } }}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            select
+            label="Categoria"
+            fullWidth
+            value={category}
+            onChange={(event) => handleCategoryChange(event.target.value)}
+          >
+            <MenuItem value="__add_category__">+ Adicionar categoria</MenuItem>
+            {categories.map((item) => (
+              <MenuItem key={item._id} value={item._id}>
+                {item.title}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
+        <Grid size={{ xs: 12 }}>
+          <Stack direction="row" justifyContent="center" sx={{ mt: 1.5 }}>
+            <Button type="submit" variant="contained" disabled={isCreating} sx={{ minWidth: 170 }}>
+              {isCreating ? "Salvando..." : "Nova transacao"}
+            </Button>
+          </Stack>
+        </Grid>
+      </Grid>
 
       {createMessage ? (
-        <Alert severity={createMessage.includes("sucesso") ? "success" : "error"} sx={{ mt: 2 }}>
+        <Alert severity={createMessage.includes("sucesso") ? "success" : "error"} sx={{ mt: 1.5 }}>
           {createMessage}
         </Alert>
       ) : null}
+
+      <Dialog
+        open={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        maxWidth={false}
+        PaperProps={{
+          sx: {
+            width: "min(92vw, 500px)",
+          },
+        }}
+      >
+        <DialogTitle>Adicionar categoria</DialogTitle>
+        <DialogContent>
+          <CategoryForm embedded onCreated={handleCategoryCreated} />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+
+  if (embedded) {
+    return <Box>{content}</Box>;
+  }
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: { xs: 1.5, md: 2 },
+        mb: 2,
+        borderRadius: 3,
+      }}
+    >
+      {content}
     </Paper>
   );
 }
