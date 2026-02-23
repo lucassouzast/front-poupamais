@@ -57,7 +57,7 @@ export default function CategoryEditDialog() {
 
       <DialogContent>
         <TextField
-          label="Titulo"
+          label="Título"
           fullWidth
           margin="normal"
           value={title}
