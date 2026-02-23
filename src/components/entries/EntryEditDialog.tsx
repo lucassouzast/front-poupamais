@@ -9,17 +9,16 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-import { useEntriesContext } from "../../contexts/EntriesContext";
+import { useEntriesStore } from "../../stores/entriesStore";
+import { useCategoriesStore } from "../../stores/categoriesStore";
 
 export default function EntryEditDialog() {
-  const {
-    editingEntry,
-    categories,
-    isSavingEdit,
-    editMessage,
-    closeEdit,
-    saveEdit,
-  } = useEntriesContext();
+  const categories = useCategoriesStore((state) => state.categories);
+  const editingEntry = useEntriesStore((state) => state.editingEntry);
+  const isSavingEdit = useEntriesStore((state) => state.isSavingEdit);
+  const editMessage = useEntriesStore((state) => state.editMessage);
+  const closeEdit = useEntriesStore((state) => state.closeEdit);
+  const saveEdit = useEntriesStore((state) => state.saveEdit);
 
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");

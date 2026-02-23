@@ -1,18 +1,18 @@
 import { Grid, MenuItem, TextField } from "@mui/material";
-import { useEntriesContext } from "../../contexts/EntriesContext";
+import { useEntriesStore } from "../../stores/entriesStore";
+import { useCategoriesStore } from "../../stores/categoriesStore";
 
 export default function EntryFilters() {
-  const {
-    categories,
-    search,
-    setSearch,
-    categoryFilter,
-    setCategoryFilter,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-  } = useEntriesContext();
+  const categories = useCategoriesStore((state) => state.categories);
+
+  const search = useEntriesStore((state) => state.search);
+  const setSearch = useEntriesStore((state) => state.setSearch);
+  const categoryFilter = useEntriesStore((state) => state.categoryFilter);
+  const setCategoryFilter = useEntriesStore((state) => state.setCategoryFilter);
+  const startDate = useEntriesStore((state) => state.startDate);
+  const setStartDate = useEntriesStore((state) => state.setStartDate);
+  const endDate = useEntriesStore((state) => state.endDate);
+  const setEndDate = useEntriesStore((state) => state.setEndDate);
 
   return (
     <>

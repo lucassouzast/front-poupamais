@@ -1,23 +1,36 @@
+import { useEffect } from "react";
 import { Alert, Box, Button, MenuItem, Paper, TextField, Typography } from "@mui/material";
-import { useEntriesContext } from "../../contexts/EntriesContext";
+import { useEntriesStore } from "../../stores/entriesStore";
+import { useCategoriesStore } from "../../stores/categoriesStore";
 
 export default function EntryForm() {
-  const {
-    categories,
-    title,
-    value,
-    date,
-    details,
-    category,
-    isCreating,
-    createMessage,
-    setTitle,
-    setValue,
-    setDate,
-    setDetails,
-    setCategory,
-    handleCreateEntry,
-  } = useEntriesContext();
+  const categories = useCategoriesStore((state) => state.categories);
+
+  const title = useEntriesStore((state) => state.title);
+  const value = useEntriesStore((state) => state.value);
+  const date = useEntriesStore((state) => state.date);
+  const details = useEntriesStore((state) => state.details);
+  const category = useEntriesStore((state) => state.category);
+  const isCreating = useEntriesStore((state) => state.isCreating);
+  const createMessage = useEntriesStore((state) => state.createMessage);
+
+  const setTitle = useEntriesStore((state) => state.setTitle);
+  const setValue = useEntriesStore((state) => state.setValue);
+  const setDate = useEntriesStore((state) => state.setDate);
+  const setDetails = useEntriesStore((state) => state.setDetails);
+  const setCategory = useEntriesStore((state) => state.setCategory);
+  const createEntry = useEntriesStore((state) => state.createEntry);
+
+  useEffect(() => {
+    if (!category && categories.length > 0) {
+      setCategory(categories[0]._id);
+    }
+  }, [categories, category, setCategory]);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await createEntry();
+  }
 
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
@@ -25,7 +38,7 @@ export default function EntryForm() {
         Novo lançamento
       </Typography>
 
-      <Box component="form" onSubmit={handleCreateEntry}>
+      <Box component="form" onSubmit={handleSubmit}>
         <TextField
           label="Titulo"
           fullWidth
