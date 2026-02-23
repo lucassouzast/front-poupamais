@@ -1,7 +1,22 @@
 import { useEffect, useState } from "react";
-import { Alert, Box, Button, Paper, Stack, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  Grid,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import AppLayout from "../components/layout/AppLayout";
-import { getMeService, updateMeService } from "../services/usersApi";
+import {
+  getMeService,
+  updateMeService,
+  updateMyEmailService,
+  updateMyPasswordService,
+} from "../services/usersApi";
 import { useAuthStore } from "../stores/authStore";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
@@ -11,16 +26,30 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailPassword, setEmailPassword] = useState("");
+  const [emailPasswordConfirmation, setEmailPasswordConfirmation] = useState("");
 
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
+  const [profileError, setProfileError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [emailSuccess, setEmailSuccess] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
 
   useEffect(() => {
     async function fetchMe() {
       setIsLoading(true);
-      setErrorMessage("");
+      setProfileError("");
 
       try {
         const data = await getMeService();
@@ -28,7 +57,7 @@ export default function ProfilePage() {
         setEmail(data.email);
         setUser(data);
       } catch (error) {
-        setErrorMessage(getApiErrorMessage(error, "Erro ao carregar perfil."));
+        setProfileError(getApiErrorMessage(error, "Erro ao carregar perfil."));
       } finally {
         setIsLoading(false);
       }
@@ -37,35 +66,105 @@ export default function ProfilePage() {
     fetchMe();
   }, [setUser]);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleProfileSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setErrorMessage("");
-    setSuccessMessage("");
+    setProfileError("");
+    setProfileSuccess("");
 
     if (!name.trim()) {
-      setErrorMessage("Informe o nome.");
+      setProfileError("Informe o nome.");
       return;
     }
 
-    if (!email.trim()) {
-      setErrorMessage("Informe o email.");
-      return;
-    }
-
-    setIsSaving(true);
+    setIsSavingProfile(true);
 
     try {
       const updated = await updateMeService({
         name: name.trim(),
-        email: email.trim(),
+        email,
       });
 
       setUser(updated);
-      setSuccessMessage("Perfil atualizado com sucesso.");
+      setProfileSuccess("Perfil atualizado com sucesso.");
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Erro ao atualizar perfil."));
+      setProfileError(getApiErrorMessage(error, "Erro ao atualizar perfil."));
     } finally {
-      setIsSaving(false);
+      setIsSavingProfile(false);
+    }
+  }
+
+  async function handleEmailSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setEmailError("");
+    setEmailSuccess("");
+
+    if (!newEmail.trim()) {
+      setEmailError("Informe o novo email.");
+      return;
+    }
+
+    if (!emailPassword) {
+      setEmailError("Informe sua senha atual.");
+      return;
+    }
+
+    if (!emailPasswordConfirmation) {
+      setEmailError("Confirme sua senha atual.");
+      return;
+    }
+
+    setIsSavingEmail(true);
+
+    try {
+      const updated = await updateMyEmailService({
+        email: newEmail.trim(),
+        password: emailPassword,
+        passwordConfirmation: emailPasswordConfirmation,
+      });
+
+      setEmail(updated.email);
+      setNewEmail("");
+      setEmailPassword("");
+      setEmailPasswordConfirmation("");
+      setUser(updated);
+      setEmailSuccess("Email atualizado com sucesso.");
+    } catch (error) {
+      setEmailError(getApiErrorMessage(error, "Erro ao atualizar email."));
+    } finally {
+      setIsSavingEmail(false);
+    }
+  }
+
+  async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    if (!oldPassword) {
+      setPasswordError("Informe a senha antiga.");
+      return;
+    }
+
+    if (!newPassword) {
+      setPasswordError("Informe a nova senha.");
+      return;
+    }
+
+    setIsSavingPassword(true);
+
+    try {
+      await updateMyPasswordService({
+        oldPassword,
+        newPassword,
+      });
+
+      setOldPassword("");
+      setNewPassword("");
+      setPasswordSuccess("Senha atualizada com sucesso.");
+    } catch (error) {
+      setPasswordError(getApiErrorMessage(error, "Erro ao atualizar senha."));
+    } finally {
+      setIsSavingPassword(false);
     }
   }
 
@@ -75,41 +174,117 @@ export default function ProfilePage() {
         Perfil
       </Typography>
 
-      <Paper variant="outlined" sx={{ p: 2, maxWidth: 560 }}>
-        {isLoading ? <Alert severity="info">Carregando perfil...</Alert> : null}
-        {errorMessage ? <Alert severity="error" sx={{ mb: 2 }}>{errorMessage}</Alert> : null}
-        {successMessage ? <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert> : null}
+      <Grid container spacing={1.5}>
+        <Grid size={{ xs: 12, lg: 5 }}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
+            <Typography variant="h6" sx={{ mb: 1.2 }}>
+              Dados do Perfil
+            </Typography>
 
-        <Box component="form" onSubmit={handleSubmit}>
-          <Stack spacing={1.2}>
-            <TextField
-              label="Nome"
-              fullWidth
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              disabled={isLoading}
-            />
+            {isLoading ? <Alert severity="info">Carregando perfil...</Alert> : null}
+            {profileError ? <Alert severity="error" sx={{ mb: 1.2 }}>{profileError}</Alert> : null}
+            {profileSuccess ? <Alert severity="success" sx={{ mb: 1.2 }}>{profileSuccess}</Alert> : null}
 
-            <TextField
-              label="Email"
-              type="email"
-              fullWidth
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              disabled={isLoading}
-            />
-          </Stack>
+            <Box component="form" onSubmit={handleProfileSubmit}>
+              <Stack spacing={1.1}>
+                <TextField
+                  label="Nome"
+                  fullWidth
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  disabled={isLoading}
+                />
 
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ mt: 1.5 }}
-            disabled={isLoading || isSaving}
-          >
-            {isSaving ? "Salvando..." : "Salvar alteracoes"}
-          </Button>
-        </Box>
-      </Paper>
+                <TextField label="Email atual" type="email" fullWidth value={email} disabled />
+              </Stack>
+
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ mt: 1.2 }}
+                disabled={isLoading || isSavingProfile}
+              >
+                {isSavingProfile ? "Salvando..." : "Salvar nome"}
+              </Button>
+            </Box>
+          </Paper>
+        </Grid>
+
+        <Grid size={{ xs: 12, lg: 7 }}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
+            <Typography variant="h6" sx={{ mb: 1.2 }}>
+              Segurança da Conta
+            </Typography>
+
+            <Box component="form" onSubmit={handleEmailSubmit}>
+              <Typography variant="subtitle2" sx={{ mb: 0.8 }}>
+                Trocar email
+              </Typography>
+              {emailError ? <Alert severity="error" sx={{ mb: 1 }}>{emailError}</Alert> : null}
+              {emailSuccess ? <Alert severity="success" sx={{ mb: 1 }}>{emailSuccess}</Alert> : null}
+
+              <Stack spacing={1}>
+                <TextField
+                  label="Novo email"
+                  type="email"
+                  fullWidth
+                  value={newEmail}
+                  onChange={(event) => setNewEmail(event.target.value)}
+                />
+                <TextField
+                  label="Senha atual"
+                  type="password"
+                  fullWidth
+                  value={emailPassword}
+                  onChange={(event) => setEmailPassword(event.target.value)}
+                />
+                <TextField
+                  label="Confirmar senha atual"
+                  type="password"
+                  fullWidth
+                  value={emailPasswordConfirmation}
+                  onChange={(event) => setEmailPasswordConfirmation(event.target.value)}
+                />
+              </Stack>
+
+              <Button type="submit" variant="outlined" sx={{ mt: 1.2 }} disabled={isSavingEmail}>
+                {isSavingEmail ? "Salvando..." : "Atualizar email"}
+              </Button>
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box component="form" onSubmit={handlePasswordSubmit}>
+              <Typography variant="subtitle2" sx={{ mb: 0.8 }}>
+                Trocar senha
+              </Typography>
+              {passwordError ? <Alert severity="error" sx={{ mb: 1 }}>{passwordError}</Alert> : null}
+              {passwordSuccess ? <Alert severity="success" sx={{ mb: 1 }}>{passwordSuccess}</Alert> : null}
+
+              <Stack spacing={1}>
+                <TextField
+                  label="Senha antiga"
+                  type="password"
+                  fullWidth
+                  value={oldPassword}
+                  onChange={(event) => setOldPassword(event.target.value)}
+                />
+                <TextField
+                  label="Nova senha"
+                  type="password"
+                  fullWidth
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                />
+              </Stack>
+
+              <Button type="submit" variant="outlined" sx={{ mt: 1.2 }} disabled={isSavingPassword}>
+                {isSavingPassword ? "Salvando..." : "Atualizar senha"}
+              </Button>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
     </AppLayout>
   );
 }
