@@ -181,7 +181,7 @@ export default function EntryList() {
             <TableHead>
               <TableRow>
                 <TableCell>Data</TableCell>
-                <TableCell>Descricao</TableCell>
+                <TableCell>Descrição</TableCell>
                 <TableCell>Categoria</TableCell>
                 <TableCell>Tipo</TableCell>
                 <TableCell align="right">Valor</TableCell>

@@ -78,7 +78,7 @@ export default function EntryEditDialog() {
 
       <DialogContent>
         <TextField
-          label="Descricao"
+          label="Descrição"
           fullWidth
           margin="normal"
           value={description}

@@ -100,7 +100,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
       >
         <Grid size={{ xs: 12 }}>
           <TextField
-            label="Descricao"
+            label="Descrição"
             placeholder="Lanche, cinema com os amigos, salario, etc"
             fullWidth
             value={description}
