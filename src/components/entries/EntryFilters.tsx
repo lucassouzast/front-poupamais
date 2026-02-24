@@ -77,7 +77,7 @@ export default function EntryFilters() {
 
         <Grid size={{ xs: 6, md: 2.5 }}>
           <TextField
-            label="Ate"
+            label="Até"
             type="date"
             fullWidth
             value={endDate}

@@ -1,7 +1,10 @@
+import { useMemo, useState, type MouseEvent } from "react";
 import {
   Alert,
   Chip,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Stack,
   Table,
@@ -15,7 +18,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { DeleteOutline, EditOutlined } from "@mui/icons-material";
+import { DeleteOutline, EditOutlined, MoreVertRounded } from "@mui/icons-material";
 import { useEntriesStore } from "../../stores/entriesStore";
 import { useCategoriesStore } from "../../stores/categoriesStore";
 import type { Category } from "../../types/category";
@@ -66,6 +69,14 @@ function getCategoryByEntry(
 export default function EntryList() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }),
+    [],
+  );
   const categories = useCategoriesStore((state) => state.categories);
 
   const entries = useEntriesStore((state) => state.entries);
@@ -75,6 +86,8 @@ export default function EntryList() {
   const deletingId = useEntriesStore((state) => state.deletingId);
   const openEdit = useEntriesStore((state) => state.openEdit);
   const deleteEntry = useEntriesStore((state) => state.deleteEntry);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuEntryId, setMenuEntryId] = useState<string | null>(null);
 
   const search = useEntriesStore((state) => state.search);
   const categoryFilter = useEntriesStore((state) => state.categoryFilter);
@@ -109,71 +122,130 @@ export default function EntryList() {
     );
   }
 
+  const isMenuOpen = Boolean(menuAnchorEl) && Boolean(menuEntryId);
+
+  function handleOpenActionsMenu(event: MouseEvent<HTMLElement>, entryId: string) {
+    setMenuAnchorEl(event.currentTarget);
+    setMenuEntryId(entryId);
+  }
+
+  function handleCloseActionsMenu() {
+    setMenuAnchorEl(null);
+    setMenuEntryId(null);
+  }
+
+  function handleEditFromMenu() {
+    if (!menuEntryId) return;
+    const current = filteredEntries.find((item) => item._id === menuEntryId);
+    if (current) {
+      openEdit(current);
+    }
+    handleCloseActionsMenu();
+  }
+
+  function handleDeleteFromMenu() {
+    if (!menuEntryId) return;
+    deleteEntry(menuEntryId);
+    handleCloseActionsMenu();
+  }
+
   return (
     <>
       {deleteMessage ? <Alert severity="error" sx={{ mb: 1 }}>{deleteMessage}</Alert> : null}
 
       {isMobile ? (
-        <Stack spacing={1}>
+        <Stack spacing={0.9}>
           {filteredEntries.map((entry) => {
             const currentCategory = getCategoryByEntry(entry.category, categories);
             const isExpense = currentCategory?.expense ?? false;
             const amountColor = isExpense ? "error.main" : "success.main";
             const signal = isExpense ? "-" : "+";
+            const amountLabel = `${signal} ${currencyFormatter.format(entry.value)}`;
+            const dateLabel = new Date(entry.date).toLocaleDateString("pt-BR");
+            const categoryLabel = currentCategory?.title ?? "Categoria";
+            const detailsLabel = `${dateLabel} • ${categoryLabel}`;
 
             return (
-              <Paper key={entry._id} variant="outlined" sx={{ p: 1.2, borderRadius: 1 }}>
-                <Stack spacing={0.8}>
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                    <Typography fontWeight={700}>{entry.description || "Sem descricao"}</Typography>
-                    <Typography sx={{ color: amountColor, fontWeight: 700 }}>
-                      {`${signal} R$ ${entry.value.toFixed(2)}`}
+              <Paper key={entry._id} variant="outlined" sx={{ p: 1.1, borderRadius: 1 }}>
+                <Stack spacing={0.45}>
+                  <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
+                    <Typography sx={{ color: amountColor, fontWeight: 800, fontSize: 24, lineHeight: 1.05 }}>
+                      {amountLabel}
                     </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={(event) => handleOpenActionsMenu(event, entry._id)}
+                      aria-label="Abrir ações da transacao"
+                      sx={{ mt: -0.3, mr: -0.2 }}
+                    >
+                      <MoreVertRounded fontSize="small" />
+                    </IconButton>
                   </Stack>
 
-                  <Typography variant="caption" color="text.secondary">
-                    {new Date(entry.date).toLocaleDateString("pt-BR")}
+                  <Typography
+                    fontWeight={700}
+                    sx={{
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {entry.description || "Sem descricao"}
                   </Typography>
 
-                  <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
-                    <Chip
-                      label={currentCategory?.title ?? "Categoria"}
-                      size="small"
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
                       sx={{
-                        bgcolor: currentCategory?.color ?? "#d8e4ff",
-                        color: "#fff",
-                        fontWeight: 600,
+                        maxWidth: "75%",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
                       }}
-                    />
+                    >
+                      {detailsLabel}
+                    </Typography>
                     <Chip
                       label={isExpense ? "Despesa" : "Receita"}
                       size="small"
-                      color={isExpense ? "error" : "success"}
-                      variant="filled"
+                      variant="outlined"
+                      sx={{
+                        height: 22,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        borderColor: isExpense ? "rgba(239,68,68,0.5)" : "rgba(34,197,94,0.5)",
+                        color: isExpense ? "error.light" : "success.light",
+                        bgcolor: isExpense ? "rgba(127,29,29,0.12)" : "rgba(20,83,45,0.12)",
+                      }}
                     />
-                  </Stack>
-
-                  <Stack direction="row" spacing={0.8} justifyContent="flex-end">
-                    <Tooltip title="Editar">
-                      <IconButton color="primary" onClick={() => openEdit(entry)}>
-                        <EditOutlined fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="Excluir">
-                      <IconButton
-                        color="error"
-                        onClick={() => deleteEntry(entry._id)}
-                        disabled={deletingId === entry._id}
-                      >
-                        <DeleteOutline fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
                   </Stack>
                 </Stack>
               </Paper>
             );
           })}
+
+          <Menu
+            anchorEl={menuAnchorEl}
+            open={isMenuOpen}
+            onClose={handleCloseActionsMenu}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem onClick={handleEditFromMenu}>
+              <EditOutlined fontSize="small" sx={{ mr: 1 }} />
+              Editar
+            </MenuItem>
+            <MenuItem
+              onClick={handleDeleteFromMenu}
+              disabled={Boolean(menuEntryId && deletingId === menuEntryId)}
+              sx={{ color: "error.main" }}
+            >
+              <DeleteOutline fontSize="small" sx={{ mr: 1 }} />
+              Excluir
+            </MenuItem>
+          </Menu>
         </Stack>
       ) : (
         <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1, overflowX: "auto" }}>
@@ -185,7 +257,7 @@ export default function EntryList() {
                 <TableCell>Categoria</TableCell>
                 <TableCell>Tipo</TableCell>
                 <TableCell align="right">Valor</TableCell>
-                <TableCell align="center">Acoes</TableCell>
+                <TableCell align="center">Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -194,6 +266,7 @@ export default function EntryList() {
                 const isExpense = currentCategory?.expense ?? false;
                 const amountColor = isExpense ? "error.main" : "success.main";
                 const signal = isExpense ? "-" : "+";
+                const amountLabel = `${signal} ${currencyFormatter.format(entry.value)}`;
 
                 return (
                   <TableRow key={entry._id} hover>
@@ -223,7 +296,7 @@ export default function EntryList() {
                       />
                     </TableCell>
                     <TableCell align="right" sx={{ color: amountColor, fontWeight: 700 }}>
-                      {`${signal} R$ ${entry.value.toFixed(2)}`}
+                      {amountLabel}
                     </TableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={0.8} justifyContent="center">
