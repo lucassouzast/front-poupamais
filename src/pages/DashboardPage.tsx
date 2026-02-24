@@ -229,7 +229,7 @@ export default function DashboardPage() {
           <Typography variant="h4" sx={{ fontSize: { xs: "1.8rem", sm: "2.125rem" } }}>
             Dashboard
           </Typography>
-          <Typography color="text.secondary">Visão geral das suas financas.</Typography>
+          <Typography color="text.secondary">Visão geral das suas finanças.</Typography>
         </Stack>
 
         <Button

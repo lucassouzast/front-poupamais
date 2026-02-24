@@ -188,7 +188,7 @@ export default function AuthPage() {
               {mode === "login" ? "Bem-vindo de volta" : "Crie sua conta"}
             </Typography>
             <Typography sx={{ color: "#94A3B8", fontSize: 13 }}>
-              {mode === "login" ? "Insira seus dados para entrar" : "Comece a organizar suas financas"}
+              {mode === "login" ? "Insira seus dados para entrar" : "Comece a organizar suas finanças"}
             </Typography>
           </Stack>
 
