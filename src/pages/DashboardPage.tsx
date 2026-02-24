@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 import {
   Box,
   Button,
   Chip,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   Divider,
   Grid,
   Paper,
@@ -16,7 +13,6 @@ import {
 } from "@mui/material";
 import {
   AccountBalanceWalletOutlined,
-  AddRounded,
   ArrowDownwardRounded,
   ArrowUpwardRounded,
   AutorenewRounded,
@@ -33,7 +29,7 @@ import {
 } from "recharts";
 import AppLayout from "../components/layout/AppLayout";
 import PageLoadingOverlay from "../components/layout/PageLoadingOverlay";
-import EntryForm from "../components/entries/EntryForm";
+import FloatingFinanceButton from "../components/entries/FloatingFinanceButton";
 import { useCategoriesStore } from "../stores/categoriesStore";
 import { useEntriesStore } from "../stores/entriesStore";
 import type { Entry } from "../types/entry";
@@ -70,22 +66,43 @@ function StatCard({
     <Paper
       elevation={0}
       sx={{
-        p: 2,
+        p: { xs: 1.5, sm: 2 },
         color: "#fff",
         borderRadius: 1,
         background,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        minWidth: 0,
       }}
     >
-      <Box>
-        <Typography sx={{ opacity: 0.92, fontSize: 13 }}>{title}</Typography>
-        <Typography variant="h5" sx={{ mt: 0.3, fontSize: { xs: 24, sm: 26 } }}>
+      <Box sx={{ minWidth: 0, flex: 1 }}>
+        <Typography sx={{ opacity: 0.92, fontSize: { xs: 11, sm: 13 } }}>{title}</Typography>
+        <Typography
+          variant="h5"
+          sx={{
+            mt: 0.3,
+            fontSize: { xs: 18, sm: 26 },
+            whiteSpace: "nowrap",
+            lineHeight: 1.1,
+          }}
+        >
           {value}
         </Typography>
       </Box>
-      {icon}
+      <Box
+        sx={{
+          ml: { xs: 0.6, sm: 1 },
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          "& .MuiSvgIcon-root": {
+            fontSize: { xs: 28, sm: 36 },
+          },
+        }}
+      >
+        {icon}
+      </Box>
     </Paper>
   );
 }
@@ -101,8 +118,6 @@ export default function DashboardPage() {
   const entries = useEntriesStore((state) => state.entries);
   const entriesLoading = useEntriesStore((state) => state.isLoading);
   const fetchEntries = useEntriesStore((state) => state.fetchEntries);
-
-  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
 
   const handleRefresh = useCallback(async () => {
     await Promise.all([fetchCategories(), fetchEntries()]);
@@ -214,31 +229,22 @@ export default function DashboardPage() {
           <Typography variant="h4" sx={{ fontSize: { xs: "1.8rem", sm: "2.125rem" } }}>
             Dashboard
           </Typography>
-          <Typography color="text.secondary">Visao geral das suas financas.</Typography>
+          <Typography color="text.secondary">Visão geral das suas financas.</Typography>
         </Stack>
 
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ width: { xs: "100%", sm: "auto" } }}>
-          <Button
-            startIcon={<AddRounded />}
-            variant="contained"
-            onClick={() => setIsEntryModalOpen(true)}
-            fullWidth={isMobile}
-          >
-            Nova transação
-          </Button>
-          <Button
-            startIcon={<AutorenewRounded />}
-            variant="outlined"
-            onClick={handleRefresh}
-            fullWidth={isMobile}
-          >
-            Atualizar
-          </Button>
-        </Stack>
+        <Button
+          startIcon={<AutorenewRounded />}
+          variant="outlined"
+          onClick={handleRefresh}
+          fullWidth={isMobile}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
+          Atualizar
+        </Button>
       </Stack>
 
       <Grid container spacing={1.4} sx={{ mb: 2.2 }}>
-        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <Grid size={{ xs: 6, sm: 6, lg: 3 }}>
           <StatCard
             title="Receitas"
             value={currencyFormatter.format(summary.income)}
@@ -246,7 +252,7 @@ export default function DashboardPage() {
             background="linear-gradient(140deg, #16A34A 0%, #22C55E 100%)"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <Grid size={{ xs: 6, sm: 6, lg: 3 }}>
           <StatCard
             title="Despesas"
             value={currencyFormatter.format(summary.expense)}
@@ -254,15 +260,15 @@ export default function DashboardPage() {
             background="linear-gradient(140deg, #B91C1C 0%, #DC2626 100%)"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <Grid size={{ xs: 6, sm: 6, lg: 3 }}>
           <StatCard
-            title="Saldo do Mes"
+            title="Saldo do Mês"
             value={currencyFormatter.format(summary.total)}
             icon={<CalculateOutlined fontSize="large" />}
             background="linear-gradient(140deg, #0F766E 0%, #0EA5A3 100%)"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
+        <Grid size={{ xs: 6, sm: 6, lg: 3 }}>
           <StatCard
             title="Saldo Total"
             value={currencyFormatter.format(summary.total)}
@@ -273,7 +279,7 @@ export default function DashboardPage() {
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, lg: 8 }}>
+        <Grid size={{ xs: 12, lg: 8 }} sx={{ order: { xs: 2, lg: 1 } }}>
           <Paper
             variant="outlined"
             sx={{
@@ -340,7 +346,7 @@ export default function DashboardPage() {
           </Paper>
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 4 }}>
+        <Grid size={{ xs: 12, lg: 4 }} sx={{ order: { xs: 1, lg: 2 } }}>
           <Paper
             variant="outlined"
             sx={{
@@ -351,7 +357,7 @@ export default function DashboardPage() {
             }}
           >
             <Typography variant="h6" sx={{ mb: 1.2 }}>
-              Ultimas Transações
+              Últimas Transações
             </Typography>
 
             <Stack divider={<Divider flexItem />}>
@@ -388,7 +394,7 @@ export default function DashboardPage() {
 
               {recentTransactions.length === 0 ? (
                 <Typography color="text.secondary" sx={{ py: 1 }}>
-                  Nenhuma transação recente.
+                  Nenhuma transacao recente.
                 </Typography>
               ) : null}
             </Stack>
@@ -396,22 +402,7 @@ export default function DashboardPage() {
         </Grid>
       </Grid>
 
-      <Dialog
-        open={isEntryModalOpen}
-        onClose={() => setIsEntryModalOpen(false)}
-        maxWidth={false}
-        PaperProps={{
-          sx: {
-            width: "min(92vw, 540px)",
-          },
-        }}
-      >
-        <DialogTitle>Nova transação</DialogTitle>
-        <DialogContent>
-          <EntryForm embedded onSuccess={() => setIsEntryModalOpen(false)} />
-        </DialogContent>
-      </Dialog>
-
+      <FloatingFinanceButton />
       <PageLoadingOverlay open={categoriesLoading || entriesLoading} />
     </AppLayout>
   );

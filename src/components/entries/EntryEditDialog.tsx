@@ -59,8 +59,10 @@ export default function EntryEditDialog() {
       return;
     }
 
+    const selectedCategory = categories.find((item) => item._id === category);
+
     await saveEdit({
-      description: description.trim() || undefined,
+      description: description.trim() || selectedCategory?.title || undefined,
       value: numericValue,
       date,
       category,

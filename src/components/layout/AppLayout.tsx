@@ -254,7 +254,7 @@ export default function AppLayout({ children }: Props) {
             <ListItemIcon>
               <ReceiptLongOutlined />
             </ListItemIcon>
-            <ListItemText primary="Transacoes" />
+            <ListItemText primary="Transações" />
           </ListItemButton>
 
           <ListItemButton
@@ -300,7 +300,7 @@ export default function AppLayout({ children }: Props) {
             justifyContent="space-between"
           >
             <Typography variant="body2" color="text.secondary">
-              Ultima atualização: {lastUpdatedLabel}
+              última atualização: {lastUpdatedLabel}
             </Typography>
             <Chip
               label={`Saldo Total: ${currencyFormatter.format(totalBalance)}`}

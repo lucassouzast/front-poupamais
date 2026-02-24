@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -12,6 +12,7 @@ import {
   Stack,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useEntriesStore } from "../../stores/entriesStore";
 import { useCategoriesStore } from "../../stores/categoriesStore";
@@ -20,9 +21,11 @@ import CategoryForm from "../categories/CategoryForm";
 type EntryFormProps = {
   embedded?: boolean;
   onSuccess?: () => void;
+  entryType?: "income" | "expense";
 };
 
-export default function EntryForm({ embedded = false, onSuccess }: EntryFormProps) {
+export default function EntryForm({ embedded = false, onSuccess, entryType }: EntryFormProps) {
+  const theme = useTheme();
   const categories = useCategoriesStore((state) => state.categories);
 
   const description = useEntriesStore((state) => state.description);
@@ -40,12 +43,25 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
   const createEntry = useEntriesStore((state) => state.createEntry);
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const filteredCategories = useMemo(() => {
+    if (!entryType) return categories;
+    const shouldBeExpense = entryType === "expense";
+    return categories.filter((item) => item.expense === shouldBeExpense);
+  }, [categories, entryType]);
 
   useEffect(() => {
-    if (!category && categories.length > 0) {
-      setCategory(categories[0]._id);
+    if (filteredCategories.length === 0) {
+      if (category) {
+        setCategory("");
+      }
+      return;
     }
-  }, [categories, category, setCategory]);
+
+    const currentIsValid = filteredCategories.some((item) => item._id === category);
+    if (!currentIsValid) {
+      setCategory(filteredCategories[0]._id);
+    }
+  }, [filteredCategories, category, setCategory]);
 
   useEffect(() => {
     if (!createMessage.includes("sucesso")) return;
@@ -59,6 +75,11 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const selectedCategory = categories.find((item) => item._id === category);
+    if (!description.trim() && selectedCategory?.title) {
+      setDescription(selectedCategory.title);
+    }
+
     await createEntry();
 
     const message = useEntriesStore.getState().createMessage;
@@ -72,6 +93,12 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
       setIsCategoryModalOpen(true);
       return;
     }
+
+    const selectedCategory = categories.find((item) => item._id === newValue);
+    if (selectedCategory && !description.trim()) {
+      setDescription(selectedCategory.title);
+    }
+
     setCategory(newValue);
   }
 
@@ -101,7 +128,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
         <Grid size={{ xs: 12 }}>
           <TextField
             label="Descrição"
-            placeholder="Lanche, cinema com os amigos, salario, etc"
+            placeholder="Lanche, cinema com os amigos, salário, etc"
             fullWidth
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -126,6 +153,11 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
             value={date}
             onChange={(event) => setDate(event.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
+            sx={{
+              "& input::-webkit-calendar-picker-indicator": {
+                filter: theme.palette.mode === "dark" ? "invert(1)" : "none",
+              },
+            }}
           />
         </Grid>
 
@@ -138,7 +170,7 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
             onChange={(event) => handleCategoryChange(event.target.value)}
           >
             <MenuItem value="__add_category__">+ Adicionar categoria</MenuItem>
-            {categories.map((item) => (
+            {filteredCategories.map((item) => (
               <MenuItem key={item._id} value={item._id}>
                 {item.title}
               </MenuItem>
