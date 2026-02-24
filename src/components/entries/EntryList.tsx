@@ -86,8 +86,7 @@ export default function EntryList() {
 
     const matchesText =
       !term ||
-      entry.title.toLowerCase().includes(term) ||
-      (entry.details ?? "").toLowerCase().includes(term);
+      (entry.description ?? "").toLowerCase().includes(term);
 
     const matchesCategory =
       !categoryFilter || normalizeId(entry.category) === normalizeId(categoryFilter);
@@ -126,14 +125,14 @@ export default function EntryList() {
               <Paper key={entry._id} variant="outlined" sx={{ p: 1.2, borderRadius: 1 }}>
                 <Stack spacing={0.8}>
                   <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                    <Typography fontWeight={700}>{entry.title}</Typography>
+                    <Typography fontWeight={700}>{entry.description || "Sem descricao"}</Typography>
                     <Typography sx={{ color: amountColor, fontWeight: 700 }}>
                       {`${signal} R$ ${entry.value.toFixed(2)}`}
                     </Typography>
                   </Stack>
 
                   <Typography variant="caption" color="text.secondary">
-                    {new Date(entry.date).toLocaleDateString("pt-BR")} - {entry.details || "Sem detalhes"}
+                    {new Date(entry.date).toLocaleDateString("pt-BR")}
                   </Typography>
 
                   <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
@@ -201,10 +200,7 @@ export default function EntryList() {
                     <TableCell>{new Date(entry.date).toLocaleDateString("pt-BR")}</TableCell>
                     <TableCell>
                       <Stack spacing={0.2}>
-                        <Typography fontWeight={600}>{entry.title}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {entry.details || "Sem detalhes"}
-                        </Typography>
+                        <Typography fontWeight={600}>{entry.description || "Sem descricao"}</Typography>
                       </Stack>
                     </TableCell>
                     <TableCell>

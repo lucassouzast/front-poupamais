@@ -2,11 +2,17 @@ import { api } from "./api";
 import type { Entry } from "../types/entry";
 
 export type EntryPayload = {
-  title: string;
+  description?: string;
   value: number;
   date: string;
-  details: string;
   category: string;
+};
+
+export type UpdateEntryPayload = {
+  description?: string;
+  value?: number;
+  date?: string;
+  category?: string;
 };
 
 export async function listEntriesService() {
@@ -19,7 +25,7 @@ export async function createEntryService(body: EntryPayload) {
   return response.data;
 }
 
-export async function updateEntryService(id: string, body: EntryPayload) {
+export async function updateEntryService(id: string, body: UpdateEntryPayload) {
   const response = await api.put<Entry>(`/entries/${id}`, body);
   return response.data;
 }

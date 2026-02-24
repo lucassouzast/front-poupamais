@@ -25,30 +25,23 @@ export default function EntryEditDialog() {
   const closeEdit = useEntriesStore((state) => state.closeEdit);
   const saveEdit = useEntriesStore((state) => state.saveEdit);
 
-  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
   const [date, setDate] = useState("");
-  const [details, setDetails] = useState("");
   const [category, setCategory] = useState("");
   const [localMessage, setLocalMessage] = useState("");
 
   useEffect(() => {
     if (!editingEntry) return;
-    setTitle(editingEntry.title);
+    setDescription(editingEntry.description ?? "");
     setValue(String(editingEntry.value));
     setDate(editingEntry.date ? editingEntry.date.slice(0, 10) : "");
-    setDetails(editingEntry.details ?? "");
     setCategory(typeof editingEntry.category === "string" ? editingEntry.category : editingEntry.category._id);
     setLocalMessage("");
   }, [editingEntry]);
 
   async function handleSave() {
     setLocalMessage("");
-
-    if (!title.trim()) {
-      setLocalMessage("Informe o titulo.");
-      return;
-    }
 
     const numericValue = Number(value);
     if (!Number.isFinite(numericValue) || numericValue <= 0) {
@@ -67,10 +60,9 @@ export default function EntryEditDialog() {
     }
 
     await saveEdit({
-      title: title.trim(),
+      description: description.trim() || undefined,
       value: numericValue,
       date,
-      details: details.trim(),
       category,
     });
   }
@@ -86,11 +78,11 @@ export default function EntryEditDialog() {
 
       <DialogContent>
         <TextField
-          label="Titulo"
+          label="Descricao"
           fullWidth
           margin="normal"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
         />
 
         <TextField
@@ -110,14 +102,6 @@ export default function EntryEditDialog() {
           value={date}
           onChange={(event) => setDate(event.target.value)}
           slotProps={{ inputLabel: { shrink: true } }}
-        />
-
-        <TextField
-          label="Detalhes"
-          fullWidth
-          margin="normal"
-          value={details}
-          onChange={(event) => setDetails(event.target.value)}
         />
 
         <TextField

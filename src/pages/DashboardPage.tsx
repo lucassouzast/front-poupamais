@@ -182,7 +182,7 @@ export default function DashboardPage() {
 
         return {
           id: entry._id,
-          title: entry.title,
+          title: entry.description ?? "Sem descricao",
           date: new Date(entry.date).toLocaleDateString("pt-BR"),
           categoryTitle: category?.title ?? "Categoria",
           categoryColor: category?.color ?? "#334155",

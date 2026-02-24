@@ -25,18 +25,16 @@ type EntryFormProps = {
 export default function EntryForm({ embedded = false, onSuccess }: EntryFormProps) {
   const categories = useCategoriesStore((state) => state.categories);
 
-  const title = useEntriesStore((state) => state.title);
+  const description = useEntriesStore((state) => state.description);
   const value = useEntriesStore((state) => state.value);
   const date = useEntriesStore((state) => state.date);
-  const details = useEntriesStore((state) => state.details);
   const category = useEntriesStore((state) => state.category);
   const isCreating = useEntriesStore((state) => state.isCreating);
   const createMessage = useEntriesStore((state) => state.createMessage);
 
-  const setTitle = useEntriesStore((state) => state.setTitle);
+  const setDescription = useEntriesStore((state) => state.setDescription);
   const setValue = useEntriesStore((state) => state.setValue);
   const setDate = useEntriesStore((state) => state.setDate);
-  const setDetails = useEntriesStore((state) => state.setDetails);
   const setCategory = useEntriesStore((state) => state.setCategory);
   const clearCreateMessage = useEntriesStore((state) => state.clearCreateMessage);
   const createEntry = useEntriesStore((state) => state.createEntry);
@@ -102,11 +100,11 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
       >
         <Grid size={{ xs: 12 }}>
           <TextField
-            label="Titulo"
+            label="Descricao"
             placeholder="Lanche, cinema com os amigos, salario, etc"
             fullWidth
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
           />
         </Grid>
 
@@ -128,16 +126,6 @@ export default function EntryForm({ embedded = false, onSuccess }: EntryFormProp
             value={date}
             onChange={(event) => setDate(event.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12 }}>
-          <TextField
-            label="Detalhes"
-            fullWidth
-            value={details}
-            onChange={(event) => setDetails(event.target.value)}
-            sx={{ "& .MuiInputBase-input": { minHeight: 54 } }}
           />
         </Grid>
 

@@ -5,6 +5,7 @@ import {
   listEntriesService,
   updateEntryService,
   type EntryPayload,
+  type UpdateEntryPayload,
 } from "../services/entriesApi";
 import type { Entry } from "../types/entry";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
@@ -19,10 +20,9 @@ type EntriesState = {
   errorMessage: string;
   deleteMessage: string;
 
-  title: string;
+  description: string;
   value: string;
   date: string;
-  details: string;
   category: string;
 
   categoryFilter: string;
@@ -41,10 +41,9 @@ type EntriesState = {
 
   fetchEntries: () => Promise<void>;
 
-  setTitle: (value: string) => void;
+  setDescription: (value: string) => void;
   setValue: (value: string) => void;
   setDate: (value: string) => void;
-  setDetails: (value: string) => void;
   setCategory: (value: string) => void;
 
   setCategoryFilter: (value: string) => void;
@@ -57,7 +56,7 @@ type EntriesState = {
 
   openEdit: (entry: Entry) => void;
   closeEdit: () => void;
-  saveEdit: (payload: EntryPayload) => Promise<void>;
+  saveEdit: (payload: UpdateEntryPayload) => Promise<void>;
 
   deleteEntry: (id: string) => Promise<void>;
   resetState: () => void;
@@ -69,10 +68,9 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
   errorMessage: "",
   deleteMessage: "",
 
-  title: "",
+  description: "",
   value: "",
   date: getTodayISODate(),
-  details: "",
   category: "",
 
   categoryFilter: "",
@@ -95,16 +93,15 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
       const data = await listEntriesService();
       set({ entries: data });
     } catch {
-      set({ errorMessage: "Nao foi possivel carregar lançamento." });
+      set({ errorMessage: "Nao foi possivel carregar lancamento." });
     } finally {
       set({ isLoading: false });
     }
   },
 
-  setTitle: (value) => set({ title: value }),
+  setDescription: (value) => set({ description: value }),
   setValue: (value) => set({ value }),
   setDate: (value) => set({ date: value }),
-  setDetails: (value) => set({ details: value }),
   setCategory: (value) => set({ category: value }),
 
   setCategoryFilter: (value) => set({ categoryFilter: value }),
@@ -114,13 +111,8 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
   clearCreateMessage: () => set({ createMessage: "" }),
 
   createEntry: async () => {
-    const { title, value, date, details, category } = get();
+    const { description, value, date, category } = get();
     set({ createMessage: "", deleteMessage: "" });
-
-    if (!title.trim()) {
-      set({ createMessage: "Informe o titulo." });
-      return;
-    }
 
     const numericValue = Number(value);
     if (!Number.isFinite(numericValue) || numericValue <= 0) {
@@ -141,10 +133,9 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
     set({ isCreating: true });
 
     const payload: EntryPayload = {
-      title: title.trim(),
+      description: description.trim() || undefined,
       value: numericValue,
       date,
-      details: details.trim(),
       category,
     };
 
@@ -152,14 +143,13 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
       const created = await createEntryService(payload);
       set((state) => ({
         entries: [created, ...state.entries],
-        title: "",
+        description: "",
         value: "",
         date: getTodayISODate(),
-        details: "",
-        createMessage: "Lançamento criado com sucesso.",
+        createMessage: "Lancamento criado com sucesso.",
       }));
     } catch (error) {
-      set({ createMessage: getApiErrorMessage(error, "Erro ao criar lançamento.") });
+      set({ createMessage: getApiErrorMessage(error, "Erro ao criar lancamento.") });
     } finally {
       set({ isCreating: false });
     }
@@ -190,7 +180,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
         editMessage: "",
       }));
     } catch (error) {
-      set({ editMessage: getApiErrorMessage(error, "Erro ao atualizar lançamento.") });
+      set({ editMessage: getApiErrorMessage(error, "Erro ao atualizar lancamento.") });
     } finally {
       set({ isSavingEdit: false });
     }
@@ -205,7 +195,7 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
         deleteMessage: "",
       }));
     } catch (error) {
-      set({ deleteMessage: getApiErrorMessage(error, "Erro ao excluir lançamento.") });
+      set({ deleteMessage: getApiErrorMessage(error, "Erro ao excluir lancamento.") });
     } finally {
       set({ deletingId: null });
     }
@@ -217,10 +207,9 @@ export const useEntriesStore = create<EntriesState>((set, get) => ({
       isLoading: false,
       errorMessage: "",
       deleteMessage: "",
-      title: "",
+      description: "",
       value: "",
       date: getTodayISODate(),
-      details: "",
       category: "",
       categoryFilter: "",
       startDate: "",
